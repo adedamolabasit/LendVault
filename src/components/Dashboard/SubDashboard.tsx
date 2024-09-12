@@ -18,18 +18,22 @@ import Dashboard from "./Index";
 // import Slider from "react-slick";
 
 export const SubDashboard = () => {
-//   const settings = {
-//     dots: true,
-//     infinite: true,
-//     speed: 500,
-//     slidesToShow: 1,
-//     slidesToScroll: 1,
-//     arrows: true,
-//   };
+  //   const settings = {
+  //     dots: true,
+  //     infinite: true,
+  //     speed: 500,
+  //     slidesToShow: 1,
+  //     slidesToScroll: 1,
+  //     arrows: true,
+  //   };
   const navigate = useNavigate();
   return (
     <Layout>
       <div className="relative flex w-full h-full justify-between items-center">
+        <div className="w-1/2 h-full bg-gray-400/5 flex justify-center items-center px-12">
+          <Dashboard />
+        </div>
+        
         <div className="w-1/2 h-1/2 flex flex-wrap justify-center items-center  gap-6">
           <div
             onClick={() => navigate("../")}
@@ -81,111 +85,6 @@ export const SubDashboard = () => {
               </p>
             </div>
           </button>
-        </div>
-
-        <div className="w-1/2 h-full bg-gray-400/5 flex justify-center items-center px-12">
-        <Dashboard />
-          {/* <div className="w-full h-screen bg-gray-100">
-            <div className="max-w-7xl mx-auto h-full p-6">
-              <Slider {...settings}>
-
-                <div className="bg-gray-50 p-8 rounded-lg shadow-lg flex flex-col justify-center">
-                  <h2 className="font-bold text-2xl text-cyan-700 mb-4">
-                    Why Borrow LV Tokens?
-                  </h2>
-                  <ul className="list-disc list-inside space-y-6 text-base text-gray-800">
-                    <li className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faPercent}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <span>LV tokens provide low-interest borrowing.</span>
-                    </li>
-                    <li className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faGift}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <span>Borrowing LV tokens gives access to rewards.</span>
-                    </li>
-                    <li className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faExchangeAlt}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <span>
-                        LV tokens enable seamless exchanges with other tokens.
-                      </span>
-                    </li>
-                    <li className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faCrown}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <span>
-                        LV token holders enjoy exclusive platform benefits.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
-         
-                <div className="bg-gray-50 p-8 rounded-lg shadow-lg flex flex-col justify-center">
-                  <h2 className="font-bold text-2xl text-cyan-700 mb-4">
-                    How It Works
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faPercent}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <p className="text-gray-800 text-base">
-                        Step 1: Apply for borrowing LV tokens at competitive
-                        rates.
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faGift}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <p className="text-gray-800 text-base">
-                        Step 2: Receive LV tokens in your wallet and gain
-                        rewards.
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faExchangeAlt}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <p className="text-gray-800 text-base">
-                        Step 3: Exchange LV tokens with other crypto assets
-                        seamlessly.
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <FontAwesomeIcon
-                        icon={faCrown}
-                        className="text-cyan-600 text-2xl"
-                      />
-                      <p className="text-gray-800 text-base">
-                        Step 4: Enjoy the benefits of holding LV tokens.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Slider>
-
-
-              <div className="px-12 mt-8 p-8 rounded-lg shadow-lg">
-                <button className="w-full bg-cyan-600 text-white py-3 rounded-lg text-lg font-semibold">
-                  Borrow LV Tokens
-                </button>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </Layout>
