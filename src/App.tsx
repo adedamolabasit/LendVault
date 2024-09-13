@@ -1,8 +1,8 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { HomePage } from "./components/Home/Index";
-import { SubDashboard } from "./components/Dashboard/SubDashboard";
-import Dashboard from "./components/Dashboard/Index";
+import { HomePage } from "./page/Home/Index";
+import { SubDashboard } from "./page/Dashboard/SubDashboard";
+import Dashboard from "./page/Dashboard/Index";
 
 function App() {
   return (
