@@ -1,0 +1,33 @@
+<div className="flex items-center w-full gap-4">
+<div className="w-1/2">
+  <InputBox
+    label={isCollateralMode ? "Collateral Amount" : "Borrow Amount"}
+    currencyOptions={["USD", "ETH"]}
+    onAmountChange={
+      isCollateralMode ? setCollateralAmount : setBorrowAmount
+    }
+    value={isCollateralMode ? collateralAmount : borrowAmount}
+  />
+</div>
+
+{/* Swap Icon to toggle between Collateral and Borrow modes */}
+<div className="flex justify-center">
+  <div
+    onClick={() => setIsCollateralMode(!isCollateralMode)}
+    className="cursor-pointer"
+  >
+    <FaExchangeAlt />
+  </div>
+</div>
+
+<div className="w-1/2">
+  <InputBox
+    label={!isCollateralMode ? "Collateral Amount" : "Borrow Amount"}
+    currencyOptions={["USD", "ETH"]}
+    onAmountChange={
+      !isCollateralMode ? setCollateralAmount : setBorrowAmount
+    }
+    value={!isCollateralMode ? collateralAmount : borrowAmount}
+  />
+</div>
+</div>

@@ -8,6 +8,7 @@ import { BackIcon } from "../../assets/Dashboard/BackIcon";
 import { useNavigate } from "react-router-dom";
 import Dashboard from "./Index";
 import { Borrow } from "./Borrow";
+import { Board } from "../../components/Board";
 
 export const SubDashboard = () => {
   const [activeButton, setActiveButton] = useState<string>("swap");
@@ -47,6 +48,8 @@ export const SubDashboard = () => {
     setActiveButton(key);
   };
 
+
+
   const navigate = useNavigate();
   return (
     <Layout>
@@ -61,38 +64,48 @@ export const SubDashboard = () => {
           </div>
         </div>
 
-        <div className="w-1/2 h-1/2 flex flex-wrap justify-center items-center gap-6 relative">
-          {buttons.map((button) => (
-            <button
-              key={button.key}
-              onClick={() => handleButtonClick(button.key)}
-              className={`flex flex-col justify-center items-center gap-4 h-48 w-60 drop-shadow-lg rounded-lg cursor-pointer 
-            ${activeButton === button.key ? "bg-cyan-800" : "bg-gray-400/5"} 
-            group hover:border-cyan-800 `}
-            >
-              {button.icon}
-              <div className="flex flex-col gap-2">
-                <h5
-                  className={`font-bold text-2xl ${
-                    activeButton === button.key
-                      ? "text-white"
-                      : "text-black group-hover:text-black"
-                  }`}
-                >
-                  {button.title}
-                </h5>
-                <p
-                  className={`opacity-60 ${
-                    activeButton === button.key
-                      ? "text-white"
-                      : "text-black group-hover:text-black"
-                  }`}
-                >
-                  {button.description}
-                </p>
+        <div className="relative w-1/2 h-1/2 flex flex-wrap justify-center items-center gap-6 relative">
+          <div className="fixed w-full top-6">
+            <div className="">
+              <div className="w-full flex justify-center pt-6">
+                <Board />
               </div>
-            </button>
-          ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+  {buttons.map((button) => (
+    <button
+      key={button.key}
+      onClick={() => handleButtonClick(button.key)}
+      className={`flex flex-col justify-center items-center gap-6 h-40 w-40 mt-6 drop-shadow-lg rounded-lg cursor-pointer 
+        ${activeButton === button.key ? "bg-cyan-800" : "bg-gray-400/5"} 
+        group hover:border-cyan-800 `}
+    >
+      {button.icon}
+      <div className="flex flex-col gap-2">
+        <h5
+          className={`font-bold text-2xl ${
+            activeButton === button.key
+              ? "text-white"
+              : "text-black group-hover:text-black"
+          }`}
+        >
+          {button.title}
+        </h5>
+        <p
+          className={`opacity-60 ${
+            activeButton === button.key
+              ? "text-white"
+              : "text-black group-hover:text-black"
+          }`}
+        >
+          {button.description}
+        </p>
+      </div>
+    </button>
+  ))}
+</div>
+
         </div>
       </div>
     </Layout>

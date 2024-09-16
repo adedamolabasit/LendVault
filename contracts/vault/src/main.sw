@@ -118,7 +118,7 @@ impl SRC6 for Contract {
         } else {
             0
         }
-    }
+    } 
  
     #[storage(read)]
     fn max_depositable(

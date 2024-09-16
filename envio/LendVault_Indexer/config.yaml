@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./node_modules/envio/fuel.schema.json
+name: LendVault_Indexer
+ecosystem: fuel
+networks:
+- id: 0
+  start_block: 0
+  contracts:
+  - name: SRC6
+    address:
+    - 0x28d6d0518830e47d73a527f218a0732fe2825baca2c57315cffa299353e8e6fe
+    abi_file_path: abis/src6-abi.json
+    handler: src/EventHandlers.ts
+    events:
+    - name: Withdraw
+      logId: '7130535457264345996'
+    - name: Deposit
+      logId: '13151976532709238696'

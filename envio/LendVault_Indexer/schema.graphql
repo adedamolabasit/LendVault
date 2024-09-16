@@ -1,0 +1,15 @@
+type SRC6_Withdraw {
+  id: ID!
+}
+
+type SRC6_Deposit {
+  id: ID!
+}
+
+type Vault {
+  id: ID!
+  vaultId: String!
+  assetId: String!
+  collateralLocked: BigInt!
+  tokenMinted: BigInt!
+}
