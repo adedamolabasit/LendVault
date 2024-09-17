@@ -3,11 +3,16 @@
 import { ChartBarSquareIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { DashWrapper } from "../Layout/DashWrapper";
+import { useVaultQuery } from "../../hooks/useVaultQuery";
+import { useAccount } from "@fuels/react";
+import { truncateAddress } from "../../utils/TruncateWalletAddress";
+import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
+import { EthereumIcon } from "../../assets/Dashboard/EthereumIcon";
 
 interface Stat {
   name: string;
-  value: string;
-  unit?: string;
+  value: string | number;
+  icon?: React.ReactNode;
 }
 
 interface ActivityItem {
@@ -23,40 +28,68 @@ interface ActivityItem {
   dateTime: string;
 }
 
-const stats: Stat[] = [
-  { name: "Total Assets Locked", value: "405" },
-  { name: "Total Debt", value: "3.65", unit: "mins" },
-  { name: "Number of servers", value: "3" },
-  { name: "Success rate", value: "98.5%" },
-];
-
 const statuses = {
   Completed: "text-green-400 bg-green-400/10",
   Error: "text-rose-400 bg-rose-400/10",
 };
 
-const activityItems: ActivityItem[] = [
-  {
-    user: {
-      name: "Michael Foster",
-      imageUrl:
-        "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+export default function Vault() {
+  const { account, isLoading: accountLoading } = useAccount();
+  const query = new useVaultQuery();
+
+  const { data: ownerVault, isLoading: vaultLoading } = query.fetchSingleVault(
+    account || ""
+  );
+
+  // Loading state or account not connected
+  if (accountLoading || vaultLoading) {
+    return (
+      <DashWrapper>
+        <div>Loading...</div>
+      </DashWrapper>
+    );
+  }
+
+  if (!account) {
+    return (
+      <DashWrapper>
+        <div>No account connected.</div>
+      </DashWrapper>
+    );
+  }
+
+  if (!ownerVault) {
+    return (
+      <DashWrapper>
+        <div>No vault data available.</div>
+      </DashWrapper>
+    );
+  }
+
+  const activityItems: ActivityItem[] = [
+    {
+      user: {
+        name: truncateAddress(ownerVault.id),
+        imageUrl:
+          "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      },
+      commit: "",
+      branch: "main",
+      status: "Completed",
+      duration: "25s",
+      date: "45 minutes ago",
+      dateTime: "2023-01-23T11:00",
     },
-    commit: "2d89f0c8",
-    branch: "main",
-    status: "Completed",
-    duration: "25s",
-    date: "45 minutes ago",
-    dateTime: "2023-01-23T11:00",
-  },
-  // More items...
-];
+    // More items...
+  ];
 
-function classNames(...classes: string[]): string {
-  return classes.filter(Boolean).join(" ");
-}
+  const stats: Stat[] = [
+    { name: "Asset Locked", value: (ownerVault.collateralLocked / 1e9) || "N/A", icon: <EthereumIcon className="w-8 h-8" /> },
+    { name: "Total Debt", value: (ownerVault.tokenMinted / 1e9) || "N/A", icon: <LVTIcon className="w-8 h-8"/> },
+    { name: "Number of servers", value: "3", icon: <ChartBarSquareIcon className="h-8 w-8" /> },
+    { name: "Success rate", value: "98.5%" },
+  ];
 
-export default function Dashboard() {
   return (
     <DashWrapper>
       <div className="mb-12">
@@ -64,12 +97,6 @@ export default function Dashboard() {
           <h3 className="text-base font-semibold leading-6 text-gray-900">
             Account
           </h3>
-          <button
-            type="button"
-            className="text-sm font-semibold leading-6 text-gray-900"
-          >
-            <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
-          </button>
         </div>
         <ul role="list" className="mt-4 space-y-4">
           {activityItems.map((activity) => (
@@ -116,15 +143,13 @@ export default function Dashboard() {
               className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
-                <ChartBarSquareIcon className="h-8 w-8" aria-hidden="true" />
+                {stat.icon}
               </div>
-              <div className="flex gap-x-2">
+              <div className="flex flex-col gap-x-2">
                 <div className="text-sm font-semibold leading-6 text-gray-900">
                   {stat.name}
                 </div>
-                <div className="text-sm text-gray-500">
-                  {stat.value} {stat.unit}
-                </div>
+                <div className="text-sm text-gray-500">{stat.value}</div>
               </div>
             </div>
           ))}

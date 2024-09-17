@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { fetchTotalDebts, fetchAllVaults, fetchSingleVault, fetchTotalLockedAssets, fetchTotalVaults } from '../api/query';
 
-export class VaultQueries {
+export class useVaultQuery {
   fetchTotalDebts(): UseQueryResult<any, Error> {
     return useQuery({
       queryKey: ['totalDebts'],

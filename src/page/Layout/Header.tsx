@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { toBech32 } from "fuels";
 import { Address } from "fuels";
 import { useWalletContext } from "../../providers/wallet.auth.provider";
-import { WalletUnlocked } from "fuels";
+import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 
 export const Header = () => {
   const { setInstance, setIdentityInput, contractId, instance } =
@@ -32,11 +32,15 @@ export const Header = () => {
     }
   }, [isConnected, wallet, account]);
 
-
   return (
     <div className="w-full bg-white shadow z-10">
       <div className="flex justify-between w-full px-6 py-4">
-        <div className="text-2xl font-extrabold">LendVault</div>
+        <div className="text-2xl font-extrabold flex items-center gap-4">
+          <div className="scale-25">
+            <LVTIcon />
+          </div>
+          <div>LendVault</div>
+        </div>
         {isConnected ? (
           <button
             type="button"
