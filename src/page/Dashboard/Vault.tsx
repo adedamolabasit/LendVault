@@ -1,17 +1,17 @@
-"use client";
-
 import { ChartBarSquareIcon } from "@heroicons/react/24/outline";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { DashWrapper } from "../Layout/DashWrapper";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
 import { truncateAddress } from "../../utils/TruncateWalletAddress";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { EthereumIcon } from "../../assets/Dashboard/EthereumIcon";
+import { VaultLoader } from "../../components/VaultLoader";
+import { useFetchEthereumPrice } from "../../hooks/useVaultQuery";
+import { useEffect } from "react";
 
 interface Stat {
   name: string;
-  value: string | number;
+  value: any;
   icon?: React.ReactNode;
 }
 
@@ -28,24 +28,35 @@ interface ActivityItem {
   dateTime: string;
 }
 
-const statuses = {
-  Completed: "text-green-400 bg-green-400/10",
-  Error: "text-rose-400 bg-rose-400/10",
-};
-
 export default function Vault() {
   const { account, isLoading: accountLoading } = useAccount();
   const query = new useVaultQuery();
 
-  const { data: ownerVault, isLoading: vaultLoading } = query.fetchSingleVault(
-    account || ""
-  );
+  const { data: borrowerData, isLoading: vaultLoading } =
+    query.fetchSingleBorrower(account || "");
 
-  // Loading state or account not connected
+  const {
+    data: ethPrice,
+    isLoading: gettingPrice,
+    refetch,
+  } = useFetchEthereumPrice();
+
+  // Set up a timer to refetch the Ethereum price every 30 seconds
+  useEffect(() => {
+    if (!ethPrice){
+      refetch()
+    }
+    const intervalId = setInterval(() => {
+      refetch(); // Refetch the Ethereum price
+    }, 30000); // 30 seconds in milliseconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on unmount
+  }, [refetch, ethPrice]);
+
   if (accountLoading || vaultLoading) {
     return (
       <DashWrapper>
-        <div>Loading...</div>
+        <VaultLoader />
       </DashWrapper>
     );
   }
@@ -58,18 +69,10 @@ export default function Vault() {
     );
   }
 
-  if (!ownerVault) {
-    return (
-      <DashWrapper>
-        <div>No vault data available.</div>
-      </DashWrapper>
-    );
-  }
-
   const activityItems: ActivityItem[] = [
     {
       user: {
-        name: truncateAddress(ownerVault.id),
+        name: truncateAddress(account as string) || "Not Connected",
         imageUrl:
           "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       },
@@ -80,14 +83,30 @@ export default function Vault() {
       date: "45 minutes ago",
       dateTime: "2023-01-23T11:00",
     },
-    // More items...
   ];
 
   const stats: Stat[] = [
-    { name: "Asset Locked", value: (ownerVault.collateralLocked / 1e9) || "N/A", icon: <EthereumIcon className="w-8 h-8" /> },
-    { name: "Total Debt", value: (ownerVault.tokenMinted / 1e9) || "N/A", icon: <LVTIcon className="w-8 h-8"/> },
-    { name: "Number of servers", value: "3", icon: <ChartBarSquareIcon className="h-8 w-8" /> },
-    { name: "Success rate", value: "98.5%" },
+    {
+      name: "Total Borrowed",
+      value: borrowerData?.collateralLocked / 1e9 || "0.00",
+      icon: <LVTIcon className="w-8 h-8" />,
+    },
+    {
+      name: "Collateral Locked",
+      value: gettingPrice ? (
+          "Loading..."
+      ) : (
+        `$${((borrowerData?.tokenMinted / 1e9) * ethPrice!).toFixed(2)}` ||
+        "0.00"
+      ),
+      icon: <EthereumIcon className="w-8 h-8" />,
+    },
+    {
+      name: "Interest rate",
+      value: "Unknown",
+      icon: <ChartBarSquareIcon className="h-8 w-8" />,
+    },
+    { name: "Loan Repayment", value: "Unknown" },
   ];
 
   return (
@@ -120,13 +139,6 @@ export default function Vault() {
                   {activity.branch} - {activity.status} - {activity.duration} -{" "}
                   {activity.date}
                 </p>
-              </div>
-              <div
-                className={`absolute right-4 top-4 ${
-                  statuses[activity.status]
-                }`}
-              >
-                {activity.status}
               </div>
             </li>
           ))}

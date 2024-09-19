@@ -6,9 +6,10 @@ import { toBech32 } from "fuels";
 import { Address } from "fuels";
 import { useWalletContext } from "../../providers/wallet.auth.provider";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
+import { Config } from "../../config";
 
 export const Header = () => {
-  const { setInstance, setIdentityInput, contractId, instance } =
+  const { setInstance, setIdentityInput, instance, setAddressInput } =
     useWalletContext();
 
   const { connect, isConnecting } = useConnectUI();
@@ -21,14 +22,17 @@ export const Header = () => {
 
   useEffect(() => {
     if (isConnected && wallet) {
-      const contractInstance = new LendVault(contractId, wallet);
+      const contractInstance = new LendVault(Config.contract_id, wallet);
 
       setInstance(contractInstance);
     }
     if (account) {
       const receiverAddress = new Address(toBech32(account));
       const identityInput = { Address: { bits: receiverAddress.toB256() } };
+      const addressInput = { bits: account };
+      console.log(addressInput,"ieie", identityInput)
       setIdentityInput(identityInput);
+      setAddressInput(addressInput);
     }
   }, [isConnected, wallet, account]);
 

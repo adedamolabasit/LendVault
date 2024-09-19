@@ -22,6 +22,11 @@ export const fetchSingleVault = async (id: string): Promise<AxiosResponse<any>> 
   return response.data.Vault[0];
 };
 
+export const fetchBorrowDetails = async (id: string): Promise<AxiosResponse<any>> => {
+  const response = await axios.post('http://localhost:8080/api/rest/borrower', { address: id }, { headers });
+  return response.data.BorrowerDetails[0];
+};
+
 
 export const fetchAllVaults = async (): Promise<AxiosResponse<any[]>> => {
   const response = await axios.get('http://localhost:8080/api/rest/vaults', { headers });
@@ -32,3 +37,11 @@ export const fetchTotalVaults = async (): Promise<AxiosResponse<{ totalVaults: n
   const response = await axios.get('http://localhost:8080/api/rest/vaults/total', { headers });
   return response.data.Vault_aggregate.aggregate.count
 };
+
+
+export const getEthereumPrice = async (): Promise<AxiosResponse<number>> => {
+  const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+  return response.data.ethereum.usd
+};
+
+

@@ -3,6 +3,7 @@ import {
   DepositAndMintParams,
   RepayAndBurnParams,
   ManagedAssetsParams,
+  BorrowAssetsParams
 } from "../types";
 import { AssetId } from "fuels";
 import { sha256 } from "fuels";
@@ -47,6 +48,55 @@ export const depositAndMint = async ({
       if (error instanceof FuelError) {
         throw new Error(
           `Detailed error during deposit and mint:, ${error.message}`
+        );
+      } else {
+        throw new Error(error || "Something went wrong");
+      }
+    }
+  }
+};
+
+export const BorrowAndLock = async ({
+  addressInput,
+  instance,
+  borrowAmount,
+}: BorrowAssetsParams): Promise<any> => {
+  const amount = bn.parseUnits(borrowAmount.toString());
+
+
+  if (instance) {
+    try {
+      const baseAssetId = instance.provider.getBaseAssetId();
+      // const BASE_ASSET: AssetId = {
+      //   bits: '0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c',
+      // };
+
+      const tx = instance.functions
+        .lockAndBorrow(addressInput,2,23)
+        .callParams({
+          forward: [amount, baseAssetId],
+        });
+
+      const cost = await tx.getTransactionCost();
+      const gasLimit = cost.gasUsed.add(bn(1000));
+      const maxFee = cost.maxFee.add(bn(1000));
+
+      const { waitForResult } = await tx
+        .callParams({
+          gasLimit: gasLimit,
+        })
+        .txParams({
+          maxFee: maxFee,
+        })
+        .call();
+
+      const { value } = await waitForResult();
+
+      return value;
+    } catch (error: any) {
+      if (error instanceof FuelError) {
+        throw new Error(
+          ` ${error.message}`
         );
       } else {
         throw new Error(error || "Something went wrong");
@@ -155,17 +205,3 @@ export const getManagedAssets = async ({
   }
 };
 
-// // Usage example
-// (async () => {
-//   // Replace with your contract instance, underlying asset, and vault sub ID
-//   const contractInstance = new Contract(/* contract ABI and address */);
-//   const underlyingAsset = '0x...'; // Replace with your underlying asset ID
-//   const vaultSubId = '0x...'; // Replace with your vault sub ID
-
-//   try {
-//     const managedAssets = await getManagedAssets(contractInstance, underlyingAsset, vaultSubId);
-//     console.log(`Managed assets: ${managedAssets}`);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// })();

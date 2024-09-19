@@ -1,16 +1,23 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { LendVault } from "../swayContractFile";
 import { getRandomB256 } from "fuels";
 
 interface WalletContextType {
   instance: LendVault | undefined;
   setInstance: React.Dispatch<React.SetStateAction<LendVault | undefined>>;
-  contractId: string;
   vaultSubID: string;
   setIdentityInput: React.Dispatch<any>;
+  setAddressInput: React.Dispatch<any>;
+  addressInput: any;
   identityInput: any;
-  setBorrowAmount: React.Dispatch<React.SetStateAction<number | undefined>>
-  borrowAmount: number | undefined
+  setBorrowAmount: React.Dispatch<React.SetStateAction<number | undefined>>;
+  borrowAmount: number | undefined;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -22,12 +29,12 @@ interface WalletProviderProps {
 export const WalletProvider = ({ children }: WalletProviderProps) => {
   const [instance, setInstance] = useState<LendVault>();
   const [identityInput, setIdentityInput] = useState<any>();
+  const [addressInput, setAddressInput] = useState<any>();
   const [borrowAmount, setBorrowAmount] = useState<number>();
 
-  const vaultSubID = getRandomB256();
-  // const vaultSubID = "0x4a778acfad1abc155a009dc976d2cf0db6197d3d360194d74b1fb92b96986b00"
 
-  const contractId = "0x28d6d0518830e47d73a527f218a0732fe2825baca2c57315cffa299353e8e6fe";
+
+  const vaultSubID = getRandomB256();
 
 
   return (
@@ -37,10 +44,11 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
         setInstance,
         vaultSubID,
         setIdentityInput,
+        setAddressInput,
         identityInput,
-        contractId,
+        addressInput,
         borrowAmount,
-        setBorrowAmount
+        setBorrowAmount,
       }}
     >
       {children}

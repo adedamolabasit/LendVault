@@ -27,3 +27,10 @@ export interface RepayAndBurnParams {
     underlyingAsset: string,
     vaultSubId: string
   }
+
+  export interface BorrowAssetsParams {
+    addressInput: any,
+    instance: LendVault | undefined,
+    borrowAmount: number,
+  
+  }

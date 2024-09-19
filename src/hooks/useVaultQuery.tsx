@@ -1,10 +1,20 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { fetchTotalDebts, fetchAllVaults, fetchSingleVault, fetchTotalLockedAssets, fetchTotalVaults } from '../api/query';
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  fetchTotalDebts,
+  fetchAllVaults,
+  fetchSingleVault,
+  fetchTotalLockedAssets,
+  fetchTotalVaults,
+  fetchBorrowDetails,
+  getEthereumPrice
+} from "../api/query";
+
+
 
 export class useVaultQuery {
   fetchTotalDebts(): UseQueryResult<any, Error> {
     return useQuery({
-      queryKey: ['totalDebts'],
+      queryKey: ["totalDebts"],
       queryFn: fetchTotalDebts,
       enabled: true,
       retry: 3,
@@ -13,7 +23,7 @@ export class useVaultQuery {
 
   fetchTotalLockedAssets(): UseQueryResult<any, Error> {
     return useQuery({
-      queryKey: ['totalLockedAssets'],
+      queryKey: ["totalLockedAssets"],
       queryFn: fetchTotalLockedAssets,
       enabled: true,
       retry: 3,
@@ -22,8 +32,17 @@ export class useVaultQuery {
 
   fetchSingleVault(id: string): UseQueryResult<any, Error> {
     return useQuery({
-      queryKey: ['singleVault', id],
+      queryKey: ["singleVault", id],
       queryFn: () => fetchSingleVault(id),
+      enabled: true,
+      retry: 3,
+    });
+  }
+
+  fetchSingleBorrower(id: string): UseQueryResult<any, Error> {
+    return useQuery({
+      queryKey: ["singleVault", id],
+      queryFn: () => fetchBorrowDetails(id),
       enabled: true,
       retry: 3,
     });
@@ -31,7 +50,7 @@ export class useVaultQuery {
 
   fetchAllVaults(): UseQueryResult<any, Error> {
     return useQuery({
-      queryKey: ['allVaults'],
+      queryKey: ["allVaults"],
       queryFn: fetchAllVaults,
       enabled: true,
       retry: 3,
@@ -40,11 +59,21 @@ export class useVaultQuery {
 
   fetchTotalVaults(): UseQueryResult<any, Error> {
     return useQuery({
-      queryKey: ['totalVaults'],
+      queryKey: ["totalVaults"],
       queryFn: fetchTotalVaults,
       enabled: true,
       retry: 3,
     });
   }
+}
+
+
+export function useFetchEthereumPrice(): UseQueryResult<any, Error> {
+  return useQuery({
+    queryKey: ["getEthereum"],
+    queryFn: getEthereumPrice,
+    retry: 3,
+    enabled: true,
+  });
 }
 

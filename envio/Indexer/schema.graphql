@@ -1,0 +1,16 @@
+type LiquidityPool_BorrowLog {
+  id: ID!
+}
+
+type LiquidityPool_Withdraw {
+  id: ID!
+}
+
+type LiquidityPool_Deposit {
+  id: ID!
+}
+
+type LiquidityPool_StrLog {
+  id: ID!
+}
+

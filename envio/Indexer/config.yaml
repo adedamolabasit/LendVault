@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=./node_modules/envio/fuel.schema.json
+name: Indexer
+ecosystem: fuel
+networks:
+- id: 0
+  start_block: 0
+  contracts:
+  - name: LiquidityPool
+    address:
+    - 0x97d68b27a0a82597a353bea4bdf981361ad312988109258e058a9fba199a208b
+    abi_file_path: abis/liquiditypool-abi.json
+    handler: src/EventHandlers.ts
+    events:
+    - name: BorrowLog
+      logId: '15810891269556875121'
+    - name: Withdraw
+      logId: '7130535457264345996'
+    - name: Deposit
+      logId: '13151976532709238696'
+    - name: StrLog
+      logId: '10098701174489624218'

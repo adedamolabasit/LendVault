@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BorrowIcon } from "../../assets/Dashboard/BorrowIcon";
 import { ExchangeIcon } from "../../assets/Dashboard/ExchangeIcon";
 import { SecurityToken } from "../../assets/Dashboard/SecurityToken";
@@ -10,35 +10,55 @@ import Vault from "./Vault";
 import { Borrow } from "./Borrow";
 import { Repay } from "./Repay";
 import { Board } from "../../components/Board";
+import { Earn } from "./Earn";
+import { useVaultQuery } from "../../hooks/useVaultQuery";
+import { useAccount } from "@fuels/react";
 
 export const SubDashboard = () => {
-  const [activeButton, setActiveButton] = useState<string>("swap");
+  const query = new useVaultQuery();
+  const { account, isLoading: accountLoading } = useAccount();
+
+  const [activeButton, setActiveButton] = useState<string>("vault");
+  const [isActiveLoan, setIsActiveLoan] = useState<boolean>(false);
+
+  const { data: borrowerData } = query.fetchSingleBorrower(account || "");
+
+  // Effect to handle loan status based on borrower data
+  useEffect(() => {
+    if (!accountLoading && borrowerData && borrowerData.tokenMinted > 0) {
+      setIsActiveLoan(true);
+    }
+  }, [accountLoading, borrowerData]);
+
+  if (accountLoading) {
+    return <div>Loading..</div>;
+  }
 
   const buttons = [
     {
-      title: "Borrow",
-      description: "Borrow LV token",
+      title: "Vault",
+      description: "Vault Information",
       icon: <BorrowIcon />,
-      component: <Borrow />,
-      key: "borrow",
+      component: <Vault />,
+      key: "vault",
     },
     {
-      title: "Swap",
-      description: "Swap Token",
+      title: isActiveLoan ? "Repay" : "Borrow",
+      description: isActiveLoan ? "Return your loan" : "Borrow $LVT token",
       icon: <ExchangeIcon />,
-      component: <Vault />,
+      component: isActiveLoan ? <Repay /> : <Borrow />,
       key: "swap",
     },
     {
-      title: "Secure",
-      description: "Secure Vault",
+      title: "Earn",
+      description: "Earn Interest on Loan",
       icon: <SecurityToken />,
-      component: <Vault />,
+      component: <Earn />,
       key: "secure",
     },
     {
-      title: "Repay",
-      description: "Hunt Vault",
+      title: "Exchange",
+      description: "Exchange Token",
       icon: <EarnIcon />,
       component: <Repay />,
       key: "hunt",
@@ -50,21 +70,16 @@ export const SubDashboard = () => {
   };
 
   const navigate = useNavigate();
+
   return (
     <Layout>
       <div className="relative flex w-full h-full justify-between items-center">
         <div className="w-1/2 h-full bg-gray-400/5 flex justify-center items-center px-12">
           {buttons.find((button) => button.key === activeButton)?.component}
-          <div
-            onClick={() => navigate("../")}
-            className="absolute top-2 left-8 scale-150 px-8 py-8 cursor-pointer"
-          >
-            <BackIcon />
-          </div>
         </div>
 
         <div className="relative w-1/2 h-1/2 flex flex-wrap justify-center items-center gap-6 relative">
-          <div className="fixed w-full top-6">
+          <div className="fixed w-full top-6 ">
             <div className="">
               <div className="w-full flex justify-center pt-6">
                 <Board />

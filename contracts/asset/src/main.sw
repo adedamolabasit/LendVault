@@ -90,7 +90,7 @@ impl LiquidityPool for Contract {
 
 #[storage(read, write), payable]
 fn lockAndBorrow(recipient: Address, interest_rate: u64, borrow_duration: u64) {
-    require(msg_asset_id() == AssetId::base(), "Invalid asset ID");
+    require(msg_asset_id() == BASE_ASSET, "Invalid asset ID");
     require(msg_amount() > 0, "Amount must be greater than zero");
 
     // Check if the recipient already has an active loan
@@ -148,9 +148,11 @@ fn lockAndBorrow(recipient: Address, interest_rate: u64, borrow_duration: u64) {
         let amount_to_transfer = msg_amount() / 2;
  
         // Transfer base asset to recipient.
-        transfer(Identity::Address(recipient), AssetId::base(), amount_to_transfer);
+        transfer(Identity::Address(recipient), BASE_ASSET, amount_to_transfer);
     }
 }
+ 
+ 
  
 impl SRC6 for Contract {
     #[payable]

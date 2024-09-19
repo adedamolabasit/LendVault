@@ -11,7 +11,7 @@ export const Board = () => {
 
   const stats = [
     {
-      name: "Locked Assets",
+      name: "Insurance Pool",
       stat: allLockedAssets / 1e9,
       icon: (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
@@ -28,7 +28,7 @@ export const Board = () => {
         </div>
       ),
     },
-    { name: "Total Number of Vaults", stat: allVaults },
+    { name: "Share Holders", stat: allVaults },
   ];
   return (
     <div className="bg-gray-400/5 mt-12 rounded-lg">
