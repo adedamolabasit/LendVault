@@ -23,8 +23,9 @@ export const fetchSingleVault = async (id: string): Promise<AxiosResponse<any>> 
 };
 
 export const fetchBorrowDetails = async (id: string): Promise<AxiosResponse<any>> => {
-  const response = await axios.post('http://localhost:8080/api/rest/borrower', { address: id }, { headers });
-  return response.data.BorrowerDetails[0];
+  const response = await axios.post('http://localhost:8080/api/rest/loan', { address: id }, { headers });
+  return response.data.BorrowerLog[0];
+
 };
 
 

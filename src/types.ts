@@ -13,12 +13,13 @@ export interface DepositAndMintParams {
     value: any; 
   }
 
+  
 export interface RepayAndBurnParams {
-    identityInput: any; // Address of the receiver
-    underlyingAsset: string; // AssetId of the underlying asset
-    vaultSubID: string; // SubId of the vault
-    withdrawAmount: number; // Amount to withdraw
-    instance: any; // LendVault instance
+    identityInput: any; 
+    vaultSubID: string; 
+    underlyingAsset: string; 
+    withdrawAmount: number; 
+    instance: any; 
   }
 
 
@@ -33,4 +34,10 @@ export interface RepayAndBurnParams {
     instance: LendVault | undefined,
     borrowAmount: number,
   
+  }
+
+  export interface RepayLoanParams {
+    addressInput: any,
+    instance: LendVault | undefined,
+    repayAmount: number,
   }

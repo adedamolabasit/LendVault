@@ -95,19 +95,22 @@ export default function Vault() {
       name: "Collateral Locked",
       value: gettingPrice ? (
           "Loading..."
-      ) : (
-        `$${((borrowerData?.tokenMinted / 1e9) * ethPrice!).toFixed(2)}` ||
-        "0.00"
+      ) :(
+        !isNaN(borrowerData?.tokenMinted) && ethPrice
+          ? `$${((borrowerData?.tokenMinted / 1e9) * ethPrice!).toFixed(2)}`
+          : "0.00"
       ),
       icon: <EthereumIcon className="w-8 h-8" />,
     },
     {
-      name: "Interest rate",
+      name: "Interest rate(fixed Rate)",
       value: "Unknown",
       icon: <ChartBarSquareIcon className="h-8 w-8" />,
     },
-    { name: "Loan Repayment", value: "Unknown" },
+    { name: "Collateral Value at liquidation", value: "0.00" },
   ];
+
+  console.log(borrowerData,"oewpw")
 
   return (
     <DashWrapper>

@@ -11,7 +11,7 @@ export const Board = () => {
 
   const stats = [
     {
-      name: "Insurance Pool",
+      name: "Safety Pool",
       stat: allLockedAssets / 1e9,
       icon: (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
@@ -38,10 +38,9 @@ export const Board = () => {
             key={item.name}
             className="overflow-hidden rounded-lg bg-white border-2 scale-75 border-bg-cyan-800 px-4 py-5 shadow"
           >
-            <dt className="truncate text-sm font-medium text-gray-500 flex items-center gap-4 h-12">
+            <dt className="truncate  font-medium text-gray-500 flex items-center gap-4 h-12">
               {item.icon}
-
-              {item.name}
+              <div className="text-lg font-extrabold">{item.name}</div>
             </dt>
             <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
               {item.stat}

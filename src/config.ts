@@ -5,7 +5,7 @@ export const Config = {
   network_endpoint: "https://testnet.fuel.network",
   chain_id: 0,
   contract_id:
-    "0x97d68b27a0a82597a353bea4bdf981361ad312988109258e058a9fba199a208b",
+    "0xd81f433402a8ae93b9d88a02b05d6e03f517c02331a01d402191f638af31e147",
   deployment_size: 35176,
   deployed_block_height: 10733450,
 };

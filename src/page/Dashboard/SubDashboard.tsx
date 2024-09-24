@@ -13,6 +13,7 @@ import { Board } from "../../components/Board";
 import { Earn } from "./Earn";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
+import { RepayLoan } from "./RepayLoan";
 
 export const SubDashboard = () => {
   const query = new useVaultQuery();
@@ -60,7 +61,7 @@ export const SubDashboard = () => {
       title: "Exchange",
       description: "Exchange Token",
       icon: <EarnIcon />,
-      component: <Repay />,
+      component: <RepayLoan />,
       key: "hunt",
     },
   ];

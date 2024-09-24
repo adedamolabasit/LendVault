@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { DepositAndMintParams, DepositAndMintResult, RepayAndBurnParams, BorrowAssetsParams  } from "../types";
-import { depositAndMint, repayAndBurn , BorrowAndLock } from "../api/mutate";
+import { DepositAndMintParams, DepositAndMintResult, RepayAndBurnParams, BorrowAssetsParams, RepayLoanParams  } from "../types";
+import { depositAndMint, repayLoan, getInvestment, BorrowAndLock } from "../api/mutate";
 
 export const useDepositAndMint = () => {
   return useMutation<
@@ -24,13 +24,24 @@ export const useBorrowAndMint = () => {
   });
 };
 
-export const useRepayAndBurn = () => {
+export const useRepayLoan = () => {
+  return useMutation<
+    DepositAndMintResult,
+    Error,
+    RepayLoanParams, 
+    () => void 
+  >({
+    mutationFn: (params: RepayLoanParams ) => repayLoan({ ...params }),
+  });
+};
+
+export const useGetInvestment = () => {
   return useMutation<
     DepositAndMintResult,
     Error,
     RepayAndBurnParams, 
     () => void 
   >({
-    mutationFn: (params: RepayAndBurnParams ) => repayAndBurn({ ...params }),
+    mutationFn: (params: RepayAndBurnParams ) => getInvestment({ ...params }),
   });
 };

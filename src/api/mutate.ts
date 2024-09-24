@@ -3,12 +3,17 @@ import {
   DepositAndMintParams,
   RepayAndBurnParams,
   ManagedAssetsParams,
-  BorrowAssetsParams
+  BorrowAssetsParams,
+  RepayLoanParams,
 } from "../types";
 import { AssetId } from "fuels";
 import { sha256 } from "fuels";
 import { createAssetId } from "fuels";
 import { getMintedAssetId } from "fuels";
+import { Config } from "../config";
+
+const DEFAULT_SUB_ID =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
 
 export const depositAndMint = async ({
   identityInput,
@@ -63,7 +68,6 @@ export const BorrowAndLock = async ({
 }: BorrowAssetsParams): Promise<any> => {
   const amount = bn.parseUnits(borrowAmount.toString());
 
-
   if (instance) {
     try {
       const baseAssetId = instance.provider.getBaseAssetId();
@@ -72,7 +76,7 @@ export const BorrowAndLock = async ({
       // };
 
       const tx = instance.functions
-        .lockAndBorrow(addressInput,2,23)
+        .lock_and_borrow(addressInput, 2, 23)
         .callParams({
           forward: [amount, baseAssetId],
         });
@@ -95,9 +99,7 @@ export const BorrowAndLock = async ({
       return value;
     } catch (error: any) {
       if (error instanceof FuelError) {
-        throw new Error(
-          ` ${error.message}`
-        );
+        throw new Error(` ${error.message}`);
       } else {
         throw new Error(error || "Something went wrong");
       }
@@ -105,7 +107,55 @@ export const BorrowAndLock = async ({
   }
 };
 
-export const repayAndBurn = async ({
+export const repayLoan = async ({
+  addressInput,
+  instance,
+  repayAmount,
+}: RepayLoanParams): Promise<any> => {
+  const amount = bn.parseUnits(repayAmount.toString());
+  const baseAssetId = instance?.provider.getBaseAssetId();
+  const BASE_ASSET: AssetId = {
+    bits: "0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c",
+  };
+
+
+  const tokentId = createAssetId(Config.contract_id, DEFAULT_SUB_ID);
+
+  if (instance) {
+    try {
+      const tx = instance.functions
+        .return_loan(addressInput, DEFAULT_SUB_ID)
+        .callParams({
+          forward: [amount, tokentId.bits],
+        });
+
+      const cost = await tx.getTransactionCost();
+      const gasLimit = cost.gasUsed.add(bn(1000));
+      const maxFee = cost.maxFee.add(bn(1000));
+
+      const { waitForResult } = await tx
+        .txParams({
+          gasLimit: gasLimit,
+          maxFee: maxFee,
+        })
+        .call();
+
+      const { value } = await waitForResult();
+
+      return value;
+    } catch (error: any) {
+      if (error instanceof FuelError) {
+        throw new Error(`Detailed error during withdrawal: ${error.message}`);
+      } else {
+        throw new Error(error || "Something went wrong during withdrawal");
+      }
+    }
+  } else {
+    throw new Error("Instance is not defined");
+  }
+};
+
+export const getInvestment = async ({
   identityInput,
   vaultSubID,
   underlyingAsset,
@@ -114,18 +164,8 @@ export const repayAndBurn = async ({
 }: RepayAndBurnParams): Promise<any> => {
   const amount = bn.parseUnits(withdrawAmount.toString());
 
-  // Ensure underlyingAsset and vaultSubID are hex strings
-  // const subId = sha256(`${underlyingAsset}${vaultSubID}`);
+  const contractId = Config.contract_id;
 
-  const contractId =
-    "0x28d6d0518830e47d73a527f218a0732fe2825baca2c57315cffa299353e8e6fe";
-  // const assetId: AssetId = createAssetId(contractId, subId);
-  // const assetId: AssetId = createAssetId(instance.id.toB256(), vaultSubID);
-
-  // const assetId = getMintedAssetId(instance.id.toB256(), vaultSubID)
-
-
-  // Create the share_asset_vault_sub_id using sha256
   const shareAssetVaultSubId = sha256(
     Buffer.concat([
       Buffer.from(underlyingAsset.slice(2), "hex"),
@@ -133,31 +173,22 @@ export const repayAndBurn = async ({
     ])
   );
 
-  // const contractId = ContractId.from('0x...'); // Replace with actual contract ID
-const shareAssetId = createAssetId(contractId, shareAssetVaultSubId);
-
-console.log('Share Asset ID:', shareAssetId);
-
-
-  // console.log(assetId);
+  const shareAssetId = createAssetId(contractId, shareAssetVaultSubId);
 
   if (instance) {
     try {
       const assetIdInput = { bits: underlyingAsset };
 
-      // Prepare the transaction to call the withdraw function
       const tx = instance.functions
         .withdraw(identityInput, assetIdInput, vaultSubID)
         .callParams({
           forward: [amount, shareAssetId.bits],
         });
 
-      // Estimate transaction cost and set gas limits
       const cost = await tx.getTransactionCost();
       const gasLimit = cost.gasUsed.add(bn(1000));
       const maxFee = cost.maxFee.add(bn(1000));
 
-      // Send the transaction
       const { waitForResult } = await tx
         .callParams({
           gasLimit: gasLimit,
@@ -167,7 +198,6 @@ console.log('Share Asset ID:', shareAssetId);
         })
         .call();
 
-      // Wait for the result of the transaction
       const { value } = await waitForResult();
 
       return value;
@@ -188,7 +218,6 @@ export const getManagedAssets = async ({
 }: ManagedAssetsParams): Promise<any> => {
   if (instance) {
     try {
-      // Call the managed_assets function
       const assetIdInput = { bits: underlyingAsset };
 
       const { waitForResult } = await instance.functions
@@ -197,11 +226,8 @@ export const getManagedAssets = async ({
 
       const result = await waitForResult();
       return result.value;
-      // Return the result
-      return result;
     } catch (error: any) {
       throw new Error(`Error calling managed_assets: ${error.message}`);
     }
   }
 };
-

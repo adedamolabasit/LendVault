@@ -32,12 +32,14 @@ export type AddressInput = { bits: string };
 export type AddressOutput = AddressInput;
 export type AssetIdInput = { bits: string };
 export type AssetIdOutput = AssetIdInput;
-export type BorrowLogInput = { recipient: AddressInput, locked_assets: BigNumberish, minted_amount: BigNumberish, interest_rate: BigNumberish, borrow_duration: BigNumberish };
-export type BorrowLogOutput = { recipient: AddressOutput, locked_assets: BN, minted_amount: BN, interest_rate: BN, borrow_duration: BN };
+export type BorrowLogInput = { recipient: AddressInput, locked_assets: BigNumberish, minted_amount: BigNumberish, interest_rate: BigNumberish, borrow_duration: BigNumberish, sub_id: string };
+export type BorrowLogOutput = { recipient: AddressOutput, locked_assets: BN, minted_amount: BN, interest_rate: BN, borrow_duration: BN, sub_id: string };
 export type ContractIdInput = { bits: string };
 export type ContractIdOutput = ContractIdInput;
 export type DepositInput = { caller: IdentityInput, receiver: IdentityInput, underlying_asset: AssetIdInput, vault_sub_id: string, deposited_amount: BigNumberish, minted_shares: BigNumberish };
 export type DepositOutput = { caller: IdentityOutput, receiver: IdentityOutput, underlying_asset: AssetIdOutput, vault_sub_id: string, deposited_amount: BN, minted_shares: BN };
+export type LoanReturnedInput = { recipient: AddressInput, returned_amount: BigNumberish, interest_paid: BigNumberish, timestamp: BigNumberish };
+export type LoanReturnedOutput = { recipient: AddressOutput, returned_amount: BN, interest_paid: BN, timestamp: BN };
 export type WithdrawInput = { caller: IdentityInput, receiver: IdentityInput, underlying_asset: AssetIdInput, vault_sub_id: string, withdrawn_amount: BigNumberish, burned_shares: BigNumberish };
 export type WithdrawOutput = { caller: IdentityOutput, receiver: IdentityOutput, underlying_asset: AssetIdOutput, vault_sub_id: string, withdrawn_amount: BN, burned_shares: BN };
 
@@ -93,29 +95,34 @@ const abi = {
       "metadataTypeId": 4
     },
     {
+      "type": "struct LoanReturned",
+      "concreteTypeId": "00fdcd3d146792f33808e48454af3cd2b8f7213d046c5668bfb390dfca552f28",
+      "metadataTypeId": 5
+    },
+    {
       "type": "struct standards::src6::Deposit",
       "concreteTypeId": "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe",
-      "metadataTypeId": 5
+      "metadataTypeId": 6
     },
     {
       "type": "struct standards::src6::Withdraw",
       "concreteTypeId": "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f",
-      "metadataTypeId": 6
+      "metadataTypeId": 7
     },
     {
       "type": "struct std::address::Address",
       "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308",
-      "metadataTypeId": 7
+      "metadataTypeId": 8
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 8
+      "metadataTypeId": 9
     },
     {
       "type": "struct std::string::String",
       "concreteTypeId": "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c",
-      "metadataTypeId": 12
+      "metadataTypeId": 13
     },
     {
       "type": "u64",
@@ -133,11 +140,11 @@ const abi = {
       "components": [
         {
           "name": "Address",
-          "typeId": 7
+          "typeId": 8
         },
         {
           "name": "ContractId",
-          "typeId": 11
+          "typeId": 12
         }
       ]
     },
@@ -172,7 +179,7 @@ const abi = {
       "components": [
         {
           "name": "recipient",
-          "typeId": 7
+          "typeId": 8
         },
         {
           "name": "locked_assets",
@@ -189,12 +196,38 @@ const abi = {
         {
           "name": "borrow_duration",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "sub_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
+    },
+    {
+      "type": "struct LoanReturned",
+      "metadataTypeId": 5,
+      "components": [
+        {
+          "name": "recipient",
+          "typeId": 8
+        },
+        {
+          "name": "returned_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "interest_paid",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "timestamp",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct standards::src6::Deposit",
-      "metadataTypeId": 5,
+      "metadataTypeId": 6,
       "components": [
         {
           "name": "caller",
@@ -206,7 +239,7 @@ const abi = {
         },
         {
           "name": "underlying_asset",
-          "typeId": 8
+          "typeId": 9
         },
         {
           "name": "vault_sub_id",
@@ -224,7 +257,7 @@ const abi = {
     },
     {
       "type": "struct standards::src6::Withdraw",
-      "metadataTypeId": 6,
+      "metadataTypeId": 7,
       "components": [
         {
           "name": "caller",
@@ -236,7 +269,7 @@ const abi = {
         },
         {
           "name": "underlying_asset",
-          "typeId": 8
+          "typeId": 9
         },
         {
           "name": "vault_sub_id",
@@ -254,16 +287,6 @@ const abi = {
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 7,
-      "components": [
-        {
-          "name": "bits",
-          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
-        }
-      ]
-    },
-    {
-      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 8,
       "components": [
         {
@@ -273,12 +296,22 @@ const abi = {
       ]
     },
     {
-      "type": "struct std::bytes::Bytes",
+      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 9,
       "components": [
         {
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
+    },
+    {
+      "type": "struct std::bytes::Bytes",
+      "metadataTypeId": 10,
+      "components": [
+        {
           "name": "buf",
-          "typeId": 10
+          "typeId": 11
         },
         {
           "name": "len",
@@ -288,7 +321,7 @@ const abi = {
     },
     {
       "type": "struct std::bytes::RawBytes",
-      "metadataTypeId": 10,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "ptr",
@@ -302,7 +335,7 @@ const abi = {
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 11,
+      "metadataTypeId": 12,
       "components": [
         {
           "name": "bits",
@@ -312,27 +345,16 @@ const abi = {
     },
     {
       "type": "struct std::string::String",
-      "metadataTypeId": 12,
+      "metadataTypeId": 13,
       "components": [
         {
           "name": "bytes",
-          "typeId": 9
+          "typeId": 10
         }
       ]
     }
   ],
   "functions": [
-    {
-      "inputs": [
-        {
-          "name": "recipient",
-          "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308"
-        }
-      ],
-      "name": "WithdrawAndRefund",
-      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
-      "attributes": null
-    },
     {
       "inputs": [
         {
@@ -348,7 +370,34 @@ const abi = {
           "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ],
-      "name": "lockAndBorrow",
+      "name": "lock_and_borrow",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "recipient",
+          "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308"
+        },
+        {
+          "name": "sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ],
+      "name": "return_loan",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
@@ -588,6 +637,10 @@ const abi = {
       "concreteTypeId": "db6b91d708432f713247d115ec2ba58e25092f0118c8b9180a7f41a172b6e141"
     },
     {
+      "logId": "71438831326827251",
+      "concreteTypeId": "00fdcd3d146792f33808e48454af3cd2b8f7213d046c5668bfb390dfca552f28"
+    },
+    {
       "logId": "13151976532709238696",
       "concreteTypeId": "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe"
     },
@@ -602,11 +655,15 @@ const abi = {
 
 const storageSlots: StorageSlot[] = [
   {
-    "key": "93b67ee4f0f76b71456fb4385c86aec15689e1ce5f6f6ac63b71716afa052998",
+    "key": "4f7de6b06c795b5c959ea681ccacd4737f56e43f17f170948eb7a4dec9086ea4",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
-    "key": "9dd476cdb7c87c4488f9d37589bbb6551ee9adc6d47448105945cf3ded663985",
+    "key": "687e2b6f57e66f41b526c6c28302c42b4bd4a9bff88b491b5ee5b980ccd09962",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "key": "93b67ee4f0f76b71456fb4385c86aec15689e1ce5f6f6ac63b71716afa052998",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   }
 ];
@@ -617,8 +674,8 @@ export class LendVaultInterface extends Interface {
   }
 
   declare functions: {
-    WithdrawAndRefund: FunctionFragment;
-    lockAndBorrow: FunctionFragment;
+    lock_and_borrow: FunctionFragment;
+    return_loan: FunctionFragment;
     deposit: FunctionFragment;
     managed_assets: FunctionFragment;
     max_depositable: FunctionFragment;
@@ -638,8 +695,8 @@ export class LendVault extends Contract {
 
   declare interface: LendVaultInterface;
   declare functions: {
-    WithdrawAndRefund: InvokeFunction<[recipient: AddressInput], void>;
-    lockAndBorrow: InvokeFunction<[recipient: AddressInput, interest_rate: BigNumberish, borrow_duration: BigNumberish], void>;
+    lock_and_borrow: InvokeFunction<[recipient: AddressInput, interest_rate: BigNumberish, borrow_duration: BigNumberish], void>;
+    return_loan: InvokeFunction<[recipient: AddressInput, sub_id: string], void>;
     deposit: InvokeFunction<[receiver: IdentityInput, vault_sub_id: string], BN>;
     managed_assets: InvokeFunction<[underlying_asset: AssetIdInput, vault_sub_id: string], BN>;
     max_depositable: InvokeFunction<[receiver: IdentityInput, underlying_asset: AssetIdInput, vault_sub_id: string], Option<BN>>;
