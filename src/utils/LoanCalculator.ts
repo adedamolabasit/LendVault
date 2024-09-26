@@ -59,6 +59,12 @@ export class LoanCalculator {
       const annualRate = this.interestRate / 100;
       return ((1 + annualRate / compoundingPeriods) ** compoundingPeriods - 1) * 100;
     }
+
+    public getNone(): number {
+      const threshold = this.liquidationThreshold
+      const limit = this.borrowingLimit
+      return threshold + limit
+    }
   }
   
   

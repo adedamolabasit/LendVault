@@ -16,11 +16,9 @@ import type {
   AbstractAddress,
   BigNumberish,
   BN,
-  Bytes,
   FunctionFragment,
   InvokeFunction,
   StdString,
-  StrSlice,
 } from 'fuels';
 
 import type { Option, Enum } from "./common";

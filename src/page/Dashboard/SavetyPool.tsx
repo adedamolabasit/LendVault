@@ -61,7 +61,7 @@ export const SafetyPool = () => {
             const asset: Asset = {
               name: "LV SHARES",
               symbol: "LVS",
-              icon: "https://svgshare.com/i/1ATx.svg",
+              icon: Config.lvtIcon,
               networks: [
                 {
                   type: "fuel",
