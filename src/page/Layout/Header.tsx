@@ -7,6 +7,8 @@ import { Address } from "fuels";
 import { useWalletContext } from "../../providers/wallet.auth.provider";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { Config } from "../../config";
+import { useFetchLoanInfo } from "../../hooks/useVaultQuery";
+import { getLoanInfo } from "../../api/query";
 
 export const Header = () => {
   const { setInstance, setIdentityInput, instance, setAddressInput } =
@@ -24,17 +26,25 @@ export const Header = () => {
     if (isConnected && wallet) {
       const contractInstance = new LendVault(Config.contract_id, wallet);
 
+      
+
       setInstance(contractInstance);
     }
     if (account) {
       const receiverAddress = new Address(toBech32(account));
       const identityInput = { Address: { bits: receiverAddress.toB256() } };
       const addressInput = { bits: account };
-      console.log(addressInput,"ieie", identityInput)
+      console.log(addressInput, "ieie", identityInput);
       setIdentityInput(identityInput);
       setAddressInput(addressInput);
+
+
+
+ 
     }
   }, [isConnected, wallet, account]);
+
+
 
   return (
     <div className="w-full bg-white shadow z-10">

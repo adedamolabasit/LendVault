@@ -32,12 +32,21 @@ export interface RepayAndBurnParams {
   export interface BorrowAssetsParams {
     addressInput: any,
     instance: LendVault | undefined,
-    borrowAmount: number,
+    collateralAmount: number,
+    loanAmount: number,
+    interestRate: number,
+    collateralAtLq: number,
+    maturityDate: number
   
   }
 
   export interface RepayLoanParams {
     addressInput: any,
     instance: LendVault | undefined,
-    repayAmount: number,
+    repayAmount: string,
+  }
+
+  export interface LoanInfoParams {
+    addressInput: any,
+    instance: LendVault | undefined,
   }

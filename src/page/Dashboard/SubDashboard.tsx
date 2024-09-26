@@ -1,39 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BorrowIcon } from "../../assets/Dashboard/BorrowIcon";
 import { ExchangeIcon } from "../../assets/Dashboard/ExchangeIcon";
 import { SecurityToken } from "../../assets/Dashboard/SecurityToken";
 import { EarnIcon } from "../../assets/Dashboard/EarnIcon";
 import { Layout } from "../Layout/Index";
-import { BackIcon } from "../../assets/Dashboard/BackIcon";
-import { useNavigate } from "react-router-dom";
 import Vault from "./Vault";
 import { Borrow } from "./Borrow";
-import { Repay } from "./Repay";
 import { Board } from "../../components/Board";
 import { Earn } from "./Earn";
-import { useVaultQuery } from "../../hooks/useVaultQuery";
-import { useAccount } from "@fuels/react";
 import { RepayLoan } from "./RepayLoan";
+import { useWalletContext } from "../../providers/wallet.auth.provider";
 
 export const SubDashboard = () => {
-  const query = new useVaultQuery();
-  const { account, isLoading: accountLoading } = useAccount();
-
-  const [activeButton, setActiveButton] = useState<string>("vault");
-  const [isActiveLoan, setIsActiveLoan] = useState<boolean>(false);
-
-  const { data: borrowerData } = query.fetchSingleBorrower(account || "");
-
-  // Effect to handle loan status based on borrower data
-  useEffect(() => {
-    if (!accountLoading && borrowerData && borrowerData.tokenMinted > 0) {
-      setIsActiveLoan(true);
-    }
-  }, [accountLoading, borrowerData]);
-
-  if (accountLoading) {
-    return <div>Loading..</div>;
-  }
+  const { loanInfo, setActiveButton, activeButton } = useWalletContext();
 
   const buttons = [
     {
@@ -44,10 +23,12 @@ export const SubDashboard = () => {
       key: "vault",
     },
     {
-      title: isActiveLoan ? "Repay" : "Borrow",
-      description: isActiveLoan ? "Return your loan" : "Borrow $LVT token",
+      title: loanInfo?.has_loan ? "Repay" : "Borrow",
+      description: loanInfo?.has_loan
+        ? "Return your loan"
+        : "Borrow $LVT token",
       icon: <ExchangeIcon />,
-      component: isActiveLoan ? <Repay /> : <Borrow />,
+      component: loanInfo?.has_loan ? <RepayLoan /> : <Borrow />,
       key: "swap",
     },
     {
@@ -69,8 +50,6 @@ export const SubDashboard = () => {
   const handleButtonClick = (key: string) => {
     setActiveButton(key);
   };
-
-  const navigate = useNavigate();
 
   return (
     <Layout>

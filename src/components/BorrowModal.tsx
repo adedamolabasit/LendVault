@@ -14,9 +14,10 @@ type ModalType = {
   setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
   handleSubmit: () => void;
   loadAmount: number;
+  assetAtLq: number;
   collateralAmount: number;
   interest: string;
-  repaymentDate: string;
+  maturityDate: any;
 };
 
 export const BorrowModal: FC<ModalType> = ({
@@ -24,9 +25,11 @@ export const BorrowModal: FC<ModalType> = ({
   setCanProceed,
   handleSubmit,
   loadAmount,
+  assetAtLq,
   collateralAmount,
   interest,
-  repaymentDate
+  maturityDate,
+
 }) => {
   return (
     <Dialog
@@ -64,26 +67,39 @@ export const BorrowModal: FC<ModalType> = ({
                     <dl className="divide-y divide-gray-200 text-sm">
                       <div className="flex items-center justify-between pb-4">
                         <dt className="text-gray-600">Loan Amount</dt>
-                        <dd className="font-medium text-gray-900">{loadAmount}</dd>
+                        <dd className="font-medium text-gray-900">
+                          ${loadAmount.toFixed(2)}
+                        </dd>
                       </div>
                       <div className="flex items-center justify-between py-4">
                         <dt className="text-gray-600">
                           Assets to Deposit (Ether)
                         </dt>
                         <dd className="font-bold text-bg-cyan-800">
-                          {collateralAmount}
+                          ${collateralAmount.toFixed(2)}
+                        </dd>
+                      </div>
+                      <div className="flex items-center justify-between py-4">
+                        <dt className="text-gray-600">
+                          Collateral at Liquidation
+                        </dt>
+                        <dd className="font-bold text-bg-cyan-800">
+                          ${assetAtLq.toFixed(2)}
                         </dd>
                       </div>
                       <div className="flex items-center justify-between py-4">
                         <dt className="text-gray-600">Interest</dt>
-                        <dd className="font-medium text-gray-900">{interest}</dd>
+                        <dd className="font-medium text-gray-900">
+                          {interest}
+                        </dd>
                       </div>
+
                       <div className="flex items-center justify-between py-4">
                         <dt className="font-medium text-gray-900">
-                          Repayment Date
+                          Maturity Date
                         </dt>
-                        <dd className="font-medium text-indigo-600">
-                          {repaymentDate}
+                        <dd className="font-medium text-gray-900">
+                          {maturityDate}
                         </dd>
                       </div>
                     </dl>

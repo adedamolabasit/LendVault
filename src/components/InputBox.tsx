@@ -5,10 +5,11 @@ import { useWalletContext } from "../providers/wallet.auth.provider";
 export const InputBox = () => {
   const [currency, setCurrency] = useState("USD");
   const [amount, setAmount] = useState<number>();
-  const { setBorrowAmount } = useWalletContext();
+  const { setBorrowAmount, borrowAmount } = useWalletContext();
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrency(e.target.value);
+
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,12 +20,6 @@ export const InputBox = () => {
 
   return (
     <div>
-      <label
-        htmlFor="price"
-        className="block text-sm font-medium leading-6 text-gray-900"
-      >
-        Amount
-      </label>
       <div className="relative mt-2 rounded-md shadow-sm">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <span className="text-gray-500 sm:text-sm">
@@ -35,7 +30,7 @@ export const InputBox = () => {
           id="price"
           name="price"
           type="number"
-          placeholder="0.00"
+          placeholder={`${borrowAmount}`}
           min=""
           value={amount}
           onChange={handleAmountChange}

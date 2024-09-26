@@ -12,6 +12,10 @@
       "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
     },
     {
+      "type": "bool",
+      "concreteTypeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
+    },
+    {
       "type": "enum std::identity::Identity",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
       "metadataTypeId": 0
@@ -50,34 +54,39 @@
       "metadataTypeId": 4
     },
     {
+      "type": "struct LoanInfo",
+      "concreteTypeId": "db2416e60c2d13e04b3ec3e82e654c26e95098040c18cb9955132e8c1f8790bf",
+      "metadataTypeId": 5
+    },
+    {
       "type": "struct LoanReturned",
       "concreteTypeId": "00fdcd3d146792f33808e48454af3cd2b8f7213d046c5668bfb390dfca552f28",
-      "metadataTypeId": 5
+      "metadataTypeId": 6
     },
     {
       "type": "struct standards::src6::Deposit",
       "concreteTypeId": "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe",
-      "metadataTypeId": 6
+      "metadataTypeId": 7
     },
     {
       "type": "struct standards::src6::Withdraw",
       "concreteTypeId": "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f",
-      "metadataTypeId": 7
+      "metadataTypeId": 8
     },
     {
       "type": "struct std::address::Address",
       "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308",
-      "metadataTypeId": 8
+      "metadataTypeId": 9
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 9
+      "metadataTypeId": 10
     },
     {
       "type": "struct std::string::String",
       "concreteTypeId": "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c",
-      "metadataTypeId": 13
+      "metadataTypeId": 14
     },
     {
       "type": "u64",
@@ -95,11 +104,11 @@
       "components": [
         {
           "name": "Address",
-          "typeId": 8
+          "typeId": 9
         },
         {
           "name": "ContractId",
-          "typeId": 12
+          "typeId": 13
         }
       ]
     },
@@ -134,14 +143,18 @@
       "components": [
         {
           "name": "recipient",
-          "typeId": 8
+          "typeId": 9
         },
         {
-          "name": "locked_assets",
+          "name": "collateral_amount",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          "name": "minted_amount",
+          "name": "collateral_price_at_liquidation",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "loan_amount",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
@@ -149,7 +162,7 @@
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          "name": "borrow_duration",
+          "name": "maturity_date",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
@@ -159,12 +172,42 @@
       ]
     },
     {
-      "type": "struct LoanReturned",
+      "type": "struct LoanInfo",
       "metadataTypeId": 5,
       "components": [
         {
+          "name": "has_loan",
+          "typeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
+        },
+        {
+          "name": "collateral_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "loan_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "interest_rate",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "collateral_price_at_liquidation",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "maturity_date",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
+    },
+    {
+      "type": "struct LoanReturned",
+      "metadataTypeId": 6,
+      "components": [
+        {
           "name": "recipient",
-          "typeId": 8
+          "typeId": 9
         },
         {
           "name": "returned_amount",
@@ -182,7 +225,7 @@
     },
     {
       "type": "struct standards::src6::Deposit",
-      "metadataTypeId": 6,
+      "metadataTypeId": 7,
       "components": [
         {
           "name": "caller",
@@ -194,7 +237,7 @@
         },
         {
           "name": "underlying_asset",
-          "typeId": 9
+          "typeId": 10
         },
         {
           "name": "vault_sub_id",
@@ -212,7 +255,7 @@
     },
     {
       "type": "struct standards::src6::Withdraw",
-      "metadataTypeId": 7,
+      "metadataTypeId": 8,
       "components": [
         {
           "name": "caller",
@@ -224,7 +267,7 @@
         },
         {
           "name": "underlying_asset",
-          "typeId": 9
+          "typeId": 10
         },
         {
           "name": "vault_sub_id",
@@ -242,16 +285,6 @@
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 8,
-      "components": [
-        {
-          "name": "bits",
-          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
-        }
-      ]
-    },
-    {
-      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 9,
       "components": [
         {
@@ -261,12 +294,22 @@
       ]
     },
     {
-      "type": "struct std::bytes::Bytes",
+      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 10,
       "components": [
         {
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
+    },
+    {
+      "type": "struct std::bytes::Bytes",
+      "metadataTypeId": 11,
+      "components": [
+        {
           "name": "buf",
-          "typeId": 11
+          "typeId": 12
         },
         {
           "name": "len",
@@ -276,7 +319,7 @@
     },
     {
       "type": "struct std::bytes::RawBytes",
-      "metadataTypeId": 11,
+      "metadataTypeId": 12,
       "components": [
         {
           "name": "ptr",
@@ -290,7 +333,7 @@
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 12,
+      "metadataTypeId": 13,
       "components": [
         {
           "name": "bits",
@@ -300,16 +343,52 @@
     },
     {
       "type": "struct std::string::String",
-      "metadataTypeId": 13,
+      "metadataTypeId": 14,
       "components": [
         {
           "name": "bytes",
-          "typeId": 10
+          "typeId": 11
         }
       ]
     }
   ],
   "functions": [
+    {
+      "inputs": [
+        {
+          "name": "address",
+          "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308"
+        }
+      ],
+      "name": "get_loan_info",
+      "output": "db2416e60c2d13e04b3ec3e82e654c26e95098040c18cb9955132e8c1f8790bf",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "address",
+          "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308"
+        }
+      ],
+      "name": "is_loan_repaid",
+      "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
     {
       "inputs": [
         {
@@ -321,7 +400,15 @@
           "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          "name": "borrow_duration",
+          "name": "loan_amount",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "maturity_date",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "collateral_price_at_liquidation",
           "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ],
@@ -350,6 +437,10 @@
         {
           "name": "sub_id",
           "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        },
+        {
+          "name": "interest_rate",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ],
       "name": "return_loan",

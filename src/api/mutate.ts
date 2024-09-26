@@ -5,6 +5,7 @@ import {
   ManagedAssetsParams,
   BorrowAssetsParams,
   RepayLoanParams,
+  LoanInfoParams,
 } from "../types";
 import { AssetId } from "fuels";
 import { sha256 } from "fuels";
@@ -64,9 +65,16 @@ export const depositAndMint = async ({
 export const BorrowAndLock = async ({
   addressInput,
   instance,
-  borrowAmount,
+  collateralAmount,
+  loanAmount,
+  interestRate,
+  collateralAtLq,
+  maturityDate
+
 }: BorrowAssetsParams): Promise<any> => {
-  const amount = bn.parseUnits(borrowAmount.toString());
+  const amount = bn.parseUnits(collateralAmount.toFixed(3));
+  const collateralAtLqd = bn.parseUnits(collateralAtLq.toFixed(3));
+  console.log(amount,"eyww",collateralAtLq)
 
   if (instance) {
     try {
@@ -76,7 +84,7 @@ export const BorrowAndLock = async ({
       // };
 
       const tx = instance.functions
-        .lock_and_borrow(addressInput, 2, 23)
+        .lock_and_borrow(addressInput,interestRate,loanAmount,maturityDate, collateralAtLqd)
         .callParams({
           forward: [amount, baseAssetId],
         });
@@ -118,13 +126,12 @@ export const repayLoan = async ({
     bits: "0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c",
   };
 
-
   const tokentId = createAssetId(Config.contract_id, DEFAULT_SUB_ID);
 
   if (instance) {
     try {
       const tx = instance.functions
-        .return_loan(addressInput, DEFAULT_SUB_ID)
+        .return_loan(addressInput, DEFAULT_SUB_ID,3)
         .callParams({
           forward: [amount, tokentId.bits],
         });
@@ -228,6 +235,25 @@ export const getManagedAssets = async ({
       return result.value;
     } catch (error: any) {
       throw new Error(`Error calling managed_assets: ${error.message}`);
+    }
+  }
+};
+
+export const getLoanInfo = async ({
+  instance,
+  addressInput,
+}: LoanInfoParams): Promise<any> => {
+  if (instance) {
+    try {
+      const result = await instance.functions
+        .get_loan_info(addressInput)
+        .get();
+
+      // const result = await waitForResult();
+      console.log(result,"urrur")
+      return result.value;
+    } catch (error: any) {
+      throw new Error(`Error calling loan info: ${error.message}`);
     }
   }
 };

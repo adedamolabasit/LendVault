@@ -1,13 +1,16 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
   fetchTotalDebts,
+  fetchTotalPayback,
   fetchAllVaults,
   fetchSingleVault,
   fetchTotalLockedAssets,
   fetchTotalVaults,
   fetchBorrowDetails,
-  getEthereumPrice
+  getEthereumPrice,
+  getLoanInfo
 } from "../api/query";
+import { LoanInfoParams } from "../types";
 
 
 
@@ -16,6 +19,15 @@ export class useVaultQuery {
     return useQuery({
       queryKey: ["totalDebts"],
       queryFn: fetchTotalDebts,
+      enabled: true,
+      retry: 3,
+    });
+  }
+
+  fetchTotalPaybacks(): UseQueryResult<any, Error> {
+    return useQuery({
+      queryKey: ["totalPaybacks"],
+      queryFn: fetchTotalPayback,
       enabled: true,
       retry: 3,
     });
@@ -65,6 +77,7 @@ export class useVaultQuery {
       retry: 3,
     });
   }
+
 }
 
 
@@ -75,5 +88,16 @@ export function useFetchEthereumPrice(): UseQueryResult<any, Error> {
     retry: 3,
     enabled: true,
   });
+
 }
+
+export function useFetchLoanInfo(props: LoanInfoParams): UseQueryResult<any, Error> {
+  return useQuery({
+    queryKey: ["getLoanInfo", props],  
+    queryFn: () => getLoanInfo(props), 
+    retry: 3,
+    enabled: !!props.instance && !!props.addressInput, 
+  });
+}
+
 

@@ -20,10 +20,16 @@ use standards::{src20::SRC20, src6::{Deposit, SRC6, Withdraw}};
 
 abi LendVault {
     #[storage(read, write), payable]
-    fn lock_and_borrow(recipient: Address, interest_rate: u64, borrow_duration: u64);
+    fn lock_and_borrow(recipient: Address, interest_rate: u64, loan_amount: u64, maturity_date: u64, collateral_price_at_liquidation: u64 );
 
     #[storage(read, write), payable]
-    fn return_loan(recipient: Address, sub_id: SubId);
+    fn return_loan(recipient: Address, sub_id: SubId, interest_rate: u64);
+
+    #[storage(read)]
+    fn get_loan_info(address: Address) -> LoanInfo;
+
+    #[storage(read)]
+    fn is_loan_repaid(address: Address) -> bool;
 }
 
 pub struct VaultInfo {
@@ -33,23 +39,32 @@ pub struct VaultInfo {
 }
 
 pub struct BorrowerInfo {
-    locked_assets: u64,
+    collateral_amount: u64,
+    collateral_price_at_liquidation: u64,
     sub_id: SubId,
     asset: AssetId,
-    minted_amount: u64,
+    loan_amount: u64,
     interest_rate: u64,
-    borrow_timestamp: u64,
-    borrow_duration: u64,
-
+    maturity_date: u64
 }
 
 struct BorrowLog {
     recipient: Address,
-    locked_assets: u64,
-    minted_amount: u64,
+    collateral_amount: u64,
+    collateral_price_at_liquidation: u64,
+    loan_amount: u64,
     interest_rate: u64,
-    borrow_duration: u64,
+    maturity_date: u64,
     sub_id: SubId
+}
+
+pub struct LoanInfo {
+    has_loan: bool,
+    collateral_amount: u64,
+    loan_amount: u64,
+    interest_rate: u64,
+    collateral_price_at_liquidation: u64,
+    maturity_date: u64,
 }
 
 pub struct InterestInfo {
@@ -63,6 +78,8 @@ struct LoanReturned {
     interest_paid: u64,
     timestamp: u64,
 }
+
+
 
 storage {
     total_assets: u64 = 0,
@@ -89,29 +106,30 @@ storage {
 
 impl LendVault for Contract {
     #[storage(read, write), payable]
-    fn lock_and_borrow(recipient: Address, interest_rate: u64, borrow_duration: u64) {
+    fn lock_and_borrow(recipient: Address, interest_rate: u64, loan_amount: u64, maturity_date: u64, collateral_price_at_liquidation: u64) {
         require(msg_asset_id() == AssetId::base(), "Invalid asset ID");
         require(msg_amount() > 0, "Amount must be greater than zero");
 
         if let Some(existing_loan) = storage.borrower_info_map.get(recipient).try_read()
         {
-            require(existing_loan.locked_assets == 0, "Active loan exists");
+            require(existing_loan.collateral_amount == 0, "Active loan exists");
         }
 
         if msg_asset_id() == AssetId::base() {
             storage.collateral_balance.write(storage.collateral_balance.read() + msg_amount());
         }
 
-        let amount_to_mint = msg_amount() / 2;
+        let amount_to_mint = loan_amount;
 
         let borrower_info = BorrowerInfo {
-            locked_assets: msg_amount(),
+            collateral_amount: msg_amount(),
+            collateral_price_at_liquidation: collateral_price_at_liquidation,
             sub_id: DEFAULT_SUB_ID,
             asset: msg_asset_id(),
-            minted_amount: amount_to_mint,
-            interest_rate,
-            borrow_timestamp: 90,
-            borrow_duration,
+            loan_amount: amount_to_mint,
+            interest_rate: interest_rate,
+            maturity_date: maturity_date
+
         };
 
         storage.borrower_info_map.insert(recipient, borrower_info);
@@ -120,18 +138,19 @@ impl LendVault for Contract {
 
         let borrow_log = BorrowLog {
             recipient,
-            locked_assets: borrower_info.locked_assets,
-            minted_amount: borrower_info.minted_amount,
+            collateral_amount: borrower_info.collateral_amount,
+            collateral_price_at_liquidation: borrower_info.collateral_price_at_liquidation,
+            loan_amount: borrower_info.loan_amount,
             interest_rate: borrower_info.interest_rate,
-            borrow_duration: borrower_info.borrow_duration,
-            sub_id: DEFAULT_SUB_ID
+            maturity_date: borrower_info.maturity_date,
+            sub_id: DEFAULT_SUB_ID,
         };
 
         log(borrow_log);
     }
 
     #[storage(read, write), payable]
-    fn return_loan(recipient: Address, sub_id: SubId) {
+    fn return_loan(recipient: Address, sub_id: SubId, interest_rate: u64) {
         use std::{asset::burn};
         require(sub_id == DEFAULT_SUB_ID, "Incorrect Sub Id");
 
@@ -140,22 +159,22 @@ impl LendVault for Contract {
             None => revert(1), 
         };
 
-        require(borrower_info.locked_assets > 0, "No active loan");
+        require(borrower_info.collateral_amount > 0, "No active loan");
 
         require(msg_asset_id() == AssetId::default(), "Invalid asset ID");
 
         require(
-            msg_amount() == borrower_info.minted_amount,
+            msg_amount() == borrower_info.loan_amount,
             "Incorrect amount returned",
         );
 
-        let interest = borrower_info.locked_assets * 5 / 100;
+        let interest = borrower_info.collateral_amount * interest_rate / 100;
 
         storage.pool_interest.write(storage.pool_interest.read() + interest);
 
-        storage.collateral_balance.write(storage.collateral_balance.read() - borrower_info.locked_assets);
+        storage.collateral_balance.write(storage.collateral_balance.read() - borrower_info.collateral_amount);
 
-        let amount_to_transfer = borrower_info.locked_assets - interest;
+        let amount_to_transfer = borrower_info.collateral_amount - interest;
 
         storage.borrower_info_map.remove(recipient);
 
@@ -176,6 +195,35 @@ impl LendVault for Contract {
 
         log(loan_returned_event);
 
+    }
+
+    #[storage(read)]
+    fn get_loan_info(address: Address) -> LoanInfo {
+        match storage.borrower_info_map.get(address).try_read() {
+            Some(borrower_info) => LoanInfo {
+                has_loan: true,
+                collateral_amount: borrower_info.collateral_amount,
+                loan_amount: borrower_info.loan_amount,
+                interest_rate: borrower_info.interest_rate,
+                collateral_price_at_liquidation: borrower_info.collateral_price_at_liquidation,
+                maturity_date: borrower_info.maturity_date
+            },
+            None => LoanInfo {
+                has_loan: false,
+                collateral_amount: 0,
+                loan_amount: 0,
+                interest_rate: 0,
+                collateral_price_at_liquidation: 0,
+                maturity_date:0
+            },
+        }
+    }
+    #[storage(read)]
+    fn is_loan_repaid(address: Address) -> bool {
+        match storage.borrower_info_map.get(address).try_read() {
+            Some(borrower_info) => borrower_info.collateral_amount == 0,
+            None => true,
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=./node_modules/envio/fuel.schema.json
-name: indexer
+name: LendVault
 ecosystem: fuel
 networks:
 - id: 0
@@ -7,16 +7,16 @@ networks:
   contracts:
   - name: LendVault
     address:
-    - 0x0d5e8eee593181617eeea38080af0ffe4e60fc2570af30088af4b9aaf47ffbd7
+    - 0x4a0f9ad111470bab0e59e85fcafe16539555d68433f17c556e2bee9f0911de7b
     abi_file_path: abis/lendvault-abi.json
     handler: src/EventHandlers.ts
     events:
     - name: Withdraw
       logId: '7130535457264345996'
-    - name: StrLog
-      logId: '10098701174489624218'
     - name: Deposit
       logId: '13151976532709238696'
+    - name: StrLog
+      logId: '10098701174489624218'
     - name: BorrowLog
       logId: '15810891269556875121'
     - name: LoanReturned

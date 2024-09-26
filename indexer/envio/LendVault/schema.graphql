@@ -1,0 +1,51 @@
+type LendVault_Withdraw {
+  id: ID!
+}
+
+type LendVault_Deposit {
+  id: ID!
+}
+
+type LendVault_StrLog {
+  id: ID!
+}
+
+type LendVault_BorrowLog {
+  id: ID!
+}
+
+type LendVault_LoanReturned {
+  id: ID!
+}
+
+type BorrowerLog {
+  id:ID!
+  collateralAmount: BigInt!
+  loanAmount: BigInt!
+  duration:BigInt!
+  collateralAtLq:BigInt!
+}
+
+type ReturnLoanDetails {
+  id:ID!
+  returnedAmount: BigInt!
+  interestPaid:BigInt!
+  timeStamp:BigInt!
+}
+
+type SafetyPoolDeposit {
+  id: ID!
+  vaultId: String!
+  assetId: String!
+  collateralLocked: BigInt!
+  mintedShares: BigInt!
+}
+
+type SafetyPoolWidrawal {
+  id: ID!
+  vaultId: String!
+  assetId: String!
+  withdrawnAmount: BigInt!
+  burnedShares: BigInt!
+}
+
