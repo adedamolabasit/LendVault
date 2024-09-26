@@ -6,11 +6,10 @@
  */
 export const truncateAddress = (address: string): string => {
     if (address.length <= 10) {
-      // If the address is too short, return it as-is.
       return address;
     }
-    const start = address.slice(0, 6);
-    const end = address.slice(-4);
-    return `${start}...${end}`;
+    const start = address.slice(0, 8);
+    const end = address.slice(-8);
+    return `${start}.......................${end}`;
   };
   

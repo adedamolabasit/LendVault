@@ -1,14 +1,6 @@
 import { useState } from "react";
-import { CheckIcon } from "@heroicons/react/24/solid";
 import { SavetyPool } from "../../assets/Earn/SafetyPool";
-import { Borrow } from "./Borrow";
-import {
-  ArrowLongLeftIcon,
-  ArrowLongRightIcon,
-  ArrowDownIcon,
-} from "@heroicons/react/20/solid";
-import { InputBox } from "../../components/InputBox";
-import { BorrowConfig } from "./EarnConfig";
+import { SafetyPool } from "./SavetyPool";
 
 const steps = [
   { id: "01", name: "How You Earn", status: "complete" },
@@ -16,7 +8,7 @@ const steps = [
   { id: "03", name: "Earn", status: "upcoming" },
 ];
 
-const features = [
+const safetyPool = [
   {
     name: "Safety Pool",
     description:
@@ -108,30 +100,23 @@ export const Earn = () => {
 
   return (
     <div className="flex flex-col items-center h-[100vh] w-full mt-5 px-4 overflow-auto">
-      {/* Progress Navigation */}
-      <nav aria-label="Progress" className="w-full max-w-4xl">
-        {/* ... Progress Navigation Code ... */}
-      </nav>
-
-      {/* Step Content */}
       <div className="relative max-w-xl h-4/6 p-6 bg-gray-50 shadow rounded-lg w-full overflow-auto mb-20">
-        {/* Step Content Logic */}
         {currentStep === 1 && (
           <div>
             <h2 className="text-xl font-bold mb-6">{steps[0].name}</h2>
             <dl className="flex flex-col gap-8">
-              {features.map((feature) => (
-                <div key={feature.name}>
+              {safetyPool.map((pool) => (
+                <div key={pool.name}>
                   <dt className="text-base font-semibold leading-7 text-gray-900">
                     <div className="flex gap-4 items-center h-10 mb-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-800">
-                        {feature.icon}
+                        {pool.icon}
                       </div>
-                      {feature.name}
+                      {pool.name}
                     </div>
                   </dt>
                   <dd className="mt-1 text-base leading-7 text-gray-600">
-                    {feature.description}
+                    {pool.description}
                   </dd>
                 </div>
               ))}
@@ -162,12 +147,11 @@ export const Earn = () => {
 
         {currentStep === 3 && (
           <div className="h-full w-full bg-gray-50 ">
-            <BorrowConfig />
+            <SafetyPool />
           </div>
         )}
       </div>
 
-      {/* Sticky Navigation Buttons */}
       <div className="sticky bottom-4 flex justify-end gap-4 w-full max-w-4xl">
         {currentStep > 1 && (
           <button

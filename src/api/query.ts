@@ -64,13 +64,46 @@ export const getLoanInfo = async ({
       const result = await instance.functions
         .get_loan_info(addressInput)
         .get();
-
-      // const result = await waitForResult();
+        
       console.log(result,"urrur")
       return result.value;
     } catch (error: any) {
       throw new Error(`Error calling loan info: ${error.message}`);
     }
+  }
+};
+
+export const getTotalDebts = async ({
+  instance,
+}: any): Promise<any> => {
+  if (instance) {
+    try {
+      const result = await instance.functions
+        .get_total_debts()
+        .get();
+      return result.value;
+    } catch (error: any) {
+      throw new Error(`Error calling loan info: ${error.message}`);
+    }
+  } else {
+    throw new Error("Instance is not provided");
+  }
+};
+
+export const getPoolInterest = async ({
+  instance,
+}: any): Promise<any> => {
+  if (instance) {
+    try {
+      const result = await instance.functions
+        .get_pool_interest()
+        .get();
+      return result.value;
+    } catch (error: any) {
+      throw new Error(`Error calling loan info: ${error.message}`);
+    }
+  } else {
+    throw new Error("Instance is not provided");
   }
 };
 

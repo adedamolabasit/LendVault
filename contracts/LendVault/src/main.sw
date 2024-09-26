@@ -1,5 +1,5 @@
 contract;
- 
+
 use std::{
     asset::{
         mint_to,
@@ -16,157 +16,271 @@ use std::{
     string::String,
 };
 
-
-
- 
 use standards::{src20::SRC20, src6::{Deposit, SRC6, Withdraw}};
 
-abi LiquidityPool {
+abi LendVault {
     #[storage(read, write), payable]
-    fn lockAndBorrow(recipient: Address, interest_rate: u64, borrow_duration: u64);
-    
-    fn WithdrawAndRefund(recipient: Address);
+    fn lock_and_borrow(recipient: Address, interest_rate: u64, loan_amount: u64, maturity_date: u64, collateral_price_at_liquidation: u64 );
+
+    #[storage(read, write), payable]
+    fn return_loan(recipient: Address, sub_id: SubId, interest_rate: u64);
+
+    #[storage(read)]
+    fn get_loan_info(address: Address) -> LoanInfo;
+
+    #[storage(read)]
+    fn is_loan_repaid(address: Address) -> bool;
+
+    #[storage(read)]
+    fn get_total_assets() -> u64;
+
+    #[storage(read)]
+    fn get_total_collateral() -> u64;
+
+    #[storage(read)]
+    fn get_pool_interest() -> u64;
+
+    #[storage(read)]
+    fn get_total_debts() -> u64;
 }
-const BASE_ASSET: AssetId = AssetId::from(0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c);
- 
+
 pub struct VaultInfo {
-    /// Amount of assets currently managed by this vault
     managed_assets: u64,
-    /// The vault_sub_id of this vault.
     vault_sub_id: SubId,
-    /// The asset being managed by this vault
     asset: AssetId,
 }
 
 pub struct BorrowerInfo {
-
-    locked_assets: u64,
-
+    collateral_amount: u64,
+    collateral_price_at_liquidation: u64,
     sub_id: SubId,
-
     asset: AssetId,
-
-    minted_amount: u64,
-
-    interest_rate:u64,
-
-    borrow_timestamp: u64,
-
-    borrow_duration: u64,
+    loan_amount: u64,
+    interest_rate: u64,
+    maturity_date: u64
 }
 
 struct BorrowLog {
     recipient: Address,
-    locked_assets: u64,
-    minted_amount: u64,
+    collateral_amount: u64,
+    collateral_price_at_liquidation: u64,
+    loan_amount: u64,
     interest_rate: u64,
-    borrow_duration: u64,
+    maturity_date: u64,
+    sub_id: SubId
 }
 
- 
+pub struct LoanInfo {
+    has_loan: bool,
+    collateral_amount: u64,
+    loan_amount: u64,
+    interest_rate: u64,
+    collateral_price_at_liquidation: u64,
+    maturity_date: u64,
+}
+
+pub struct InterestInfo {
+    interest_amount: u64,
+    paid_date: u64,
+}
+
+struct LoanReturned {
+    recipient: Address,
+    returned_amount: u64,
+    interest_paid: u64,
+    timestamp: u64,
+}
+
+
+
 storage {
-    /// Vault share AssetId -> VaultInfo.
-    vault_info: StorageMap<AssetId, VaultInfo> = StorageMap {},
-    /// Number of different assets managed by this contract.
     total_assets: u64 = 0,
-    /// Total supply of shares.
+
+    total_debts: u64 = 0,
+
+    collateral_balance: u64 = 0,
+
+    pool_interest: u64 = 0,
+
+    vault_info: StorageMap<AssetId, VaultInfo> = StorageMap {},
+
     total_supply: StorageMap<AssetId, u64> = StorageMap {},
-    /// Asset name.
+
     name: StorageMap<AssetId, StorageString> = StorageMap {},
-    /// Asset symbol.
+
     symbol: StorageMap<AssetId, StorageString> = StorageMap {},
-    /// Asset decimals.
+
     decimals: StorageMap<AssetId, u8> = StorageMap {},
-    
-    balance: u64 = 0,
-    
+
     borrower_info_map: StorageMap<Address, BorrowerInfo> = StorageMap {},
 
-}
- 
- 
-impl LiquidityPool for Contract {
+    interest_info_map: StorageMap<Address, InterestInfo> = StorageMap {},
 
-
-#[storage(read, write), payable]
-fn lockAndBorrow(recipient: Address, interest_rate: u64, borrow_duration: u64) {
-    require(msg_asset_id() == BASE_ASSET, "Invalid asset ID");
-    require(msg_amount() > 0, "Amount must be greater than zero");
-
-    // Check if the recipient already has an active loan
-    if let Some(existing_loan) = storage.borrower_info_map.get(recipient).try_read() {
-        require(existing_loan.locked_assets == 0, "Active loan exists");
-    }
-
-    if msg_asset_id() == AssetId::base() {
-        // If we received the base asset then keep track of the balance.
-        // Otherwise, we're receiving other native assets and don't care
-        // about our balance of coins.
-        storage.balance.write(storage.balance.read() + msg_amount());
-    }
-
-    // Mint two times the amount.
-    let amount_to_mint = msg_amount() * 2;
-
-    // Create the BorrowerInfo struct
-    let borrower_info = BorrowerInfo {
-        locked_assets: msg_amount(),
-        sub_id: DEFAULT_SUB_ID,
-        asset: msg_asset_id(),
-        minted_amount: amount_to_mint,
-        interest_rate,
-        borrow_timestamp: 90,
-        borrow_duration,
-    };
-
-    // Insert the BorrowerInfo into the StorageMap
-    storage.borrower_info_map.insert(recipient, borrower_info);
-    
-    // Mint some LP assets based upon the amount of the base asset.
-    mint_to(Identity::Address(recipient), DEFAULT_SUB_ID, amount_to_mint);
-
-    // Log the borrow information
-    let borrow_log = BorrowLog {
-        recipient,
-        locked_assets: borrower_info.locked_assets,
-        minted_amount: borrower_info.minted_amount,
-        interest_rate: borrower_info.interest_rate,
-        borrow_duration: borrower_info.borrow_duration,
-    };
-
-    log(borrow_log);
 }
 
+impl LendVault for Contract {
+    #[storage(read, write), payable]
+    fn lock_and_borrow(recipient: Address, interest_rate: u64, loan_amount: u64, maturity_date: u64, collateral_price_at_liquidation: u64) {
+        require(msg_asset_id() == AssetId::base(), "Invalid asset ID");
+        require(msg_amount() > 0, "Amount must be greater than zero");
 
- 
-    fn WithdrawAndRefund(recipient: Address) {
-        let asset_id = AssetId::default();
-        assert(msg_asset_id() == asset_id);
-        assert(msg_amount() > 0);
- 
-        // Amount to withdraw.
-        let amount_to_transfer = msg_amount() / 2;
- 
-        // Transfer base asset to recipient.
-        transfer(Identity::Address(recipient), BASE_ASSET, amount_to_transfer);
+        if let Some(existing_loan) = storage.borrower_info_map.get(recipient).try_read()
+        {
+            require(existing_loan.collateral_amount == 0, "Active loan exists");
+        }
+
+        if msg_asset_id() == AssetId::base() {
+            storage.collateral_balance.write(storage.collateral_balance.read() + msg_amount());
+        }
+
+        let amount_to_mint = loan_amount;
+
+        let borrower_info = BorrowerInfo {
+            collateral_amount: msg_amount(),
+            collateral_price_at_liquidation: collateral_price_at_liquidation,
+            sub_id: DEFAULT_SUB_ID,
+            asset: msg_asset_id(),
+            loan_amount: amount_to_mint,
+            interest_rate: interest_rate,
+            maturity_date: maturity_date
+
+        };
+
+        storage.borrower_info_map.insert(recipient, borrower_info);
+
+        storage.total_debts.write(storage.total_debts.read() + amount_to_mint);
+
+        mint_to(Identity::Address(recipient), DEFAULT_SUB_ID, amount_to_mint);
+
+        let borrow_log = BorrowLog {
+            recipient,
+            collateral_amount: borrower_info.collateral_amount,
+            collateral_price_at_liquidation: borrower_info.collateral_price_at_liquidation,
+            loan_amount: borrower_info.loan_amount,
+            interest_rate: borrower_info.interest_rate,
+            maturity_date: borrower_info.maturity_date,
+            sub_id: DEFAULT_SUB_ID,
+        };
+
+        log(borrow_log);
     }
+
+    #[storage(read, write), payable]
+    fn return_loan(recipient: Address, sub_id: SubId, interest_rate: u64) {
+        use std::{asset::burn};
+        require(sub_id == DEFAULT_SUB_ID, "Incorrect Sub Id");
+
+        let borrower_info = match storage.borrower_info_map.get(recipient).try_read() {
+            Some(info) => info,
+            None => revert(1), 
+        };
+
+        require(borrower_info.collateral_amount > 0, "No active loan");
+
+        require(msg_asset_id() == AssetId::default(), "Invalid asset ID");
+
+        require(
+            msg_amount() == borrower_info.loan_amount,
+            "Incorrect amount returned",
+        );
+
+        let interest = borrower_info.collateral_amount * interest_rate / 100;
+
+        storage.pool_interest.write(storage.pool_interest.read() + interest);
+
+        storage.collateral_balance.write(storage.collateral_balance.read() - borrower_info.collateral_amount);
+
+        let amount_to_transfer = borrower_info.collateral_amount - interest;
+
+        storage.borrower_info_map.remove(recipient);
+
+        storage.total_debts.write(storage.total_debts.read() - msg_amount());
+
+        burn(DEFAULT_SUB_ID, msg_amount());
+
+        transfer(
+            Identity::Address(recipient),
+            AssetId::base(),
+            amount_to_transfer,
+        );
+
+         let loan_returned_event = LoanReturned {
+            recipient,
+            returned_amount: msg_amount(),
+            interest_paid: interest,
+            timestamp: 90
+        };
+
+        log(loan_returned_event);
+
+    }
+
+    #[storage(read)]
+    fn get_loan_info(address: Address) -> LoanInfo {
+        match storage.borrower_info_map.get(address).try_read() {
+            Some(borrower_info) => LoanInfo {
+                has_loan: true,
+                collateral_amount: borrower_info.collateral_amount,
+                loan_amount: borrower_info.loan_amount,
+                interest_rate: borrower_info.interest_rate,
+                collateral_price_at_liquidation: borrower_info.collateral_price_at_liquidation,
+                maturity_date: borrower_info.maturity_date
+            },
+            None => LoanInfo {
+                has_loan: false,
+                collateral_amount: 0,
+                loan_amount: 0,
+                interest_rate: 0,
+                collateral_price_at_liquidation: 0,
+                maturity_date:0
+            },
+        }
+    }
+
+    #[storage(read)]
+    fn is_loan_repaid(address: Address) -> bool {
+        match storage.borrower_info_map.get(address).try_read() {
+            Some(borrower_info) => borrower_info.collateral_amount == 0,
+            None => true,
+        }
+    }
+
+    #[storage(read)]
+    fn get_total_assets() -> u64 {
+        storage.total_assets.read()
+    }
+
+    #[storage(read)]
+    fn get_total_collateral() -> u64 {
+        storage.collateral_balance.read()
+    }
+
+    #[storage(read)]
+    fn get_pool_interest() -> u64 {
+        storage.pool_interest.read()
+    }
+
+    #[storage(read)]
+    fn get_total_debts() -> u64 {
+        storage.total_debts.read()
+    }
+
 }
- 
- 
- 
+
+
 impl SRC6 for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit(receiver: Identity, vault_sub_id: SubId) -> u64 {
         let asset_amount = msg_amount();
         let underlying_asset = msg_asset_id();
- 
+
         require(underlying_asset == AssetId::base(), "INVALID_ASSET_ID");
         let (shares, share_asset, share_asset_vault_sub_id) = preview_deposit(underlying_asset, vault_sub_id, asset_amount);
         require(asset_amount != 0, "ZERO_ASSETS");
- 
+
         _mint(receiver, share_asset, share_asset_vault_sub_id, shares);
- 
+
         let mut vault_info = match storage.vault_info.get(share_asset).try_read() {
             Some(vault_info) => vault_info,
             None => VaultInfo {
@@ -177,7 +291,9 @@ impl SRC6 for Contract {
         };
         vault_info.managed_assets = vault_info.managed_assets + asset_amount;
         storage.vault_info.insert(share_asset, vault_info);
- 
+
+        storage.total_assets.write(storage.total_assets.read() + asset_amount);
+
         log(Deposit {
             caller: msg_sender().unwrap(),
             receiver: receiver,
@@ -186,10 +302,10 @@ impl SRC6 for Contract {
             deposited_amount: asset_amount,
             minted_shares: shares,
         });
- 
+
         shares
     }
- 
+
     #[payable]
     #[storage(read, write)]
     fn withdraw(
@@ -199,20 +315,20 @@ impl SRC6 for Contract {
     ) -> u64 {
         let shares = msg_amount();
         require(shares != 0, "ZERO_SHARES");
- 
+
         let (share_asset_id, share_asset_vault_sub_id) = vault_asset_id(underlying_asset, vault_sub_id);
- 
+
         require(msg_asset_id() == share_asset_id, "INVALID_ASSET_ID");
         let assets = preview_withdraw(share_asset_id, shares);
- 
+
         let mut vault_info = storage.vault_info.get(share_asset_id).read();
         vault_info.managed_assets = vault_info.managed_assets - shares;
         storage.vault_info.insert(share_asset_id, vault_info);
- 
+
         _burn(share_asset_id, share_asset_vault_sub_id, shares);
- 
+
         transfer(receiver, underlying_asset, assets);
- 
+
         log(Withdraw {
             caller: msg_sender().unwrap(),
             receiver: receiver,
@@ -221,21 +337,19 @@ impl SRC6 for Contract {
             withdrawn_amount: assets,
             burned_shares: shares,
         });
- 
+
         assets
     }
- 
+
     #[storage(read)]
     fn managed_assets(underlying_asset: AssetId, vault_sub_id: SubId) -> u64 {
         if underlying_asset == AssetId::base() {
             let vault_share_asset = vault_asset_id(underlying_asset, vault_sub_id).0;
-            // In this implementation managed_assets and max_withdrawable are the same. However in case of lending out of assets, managed_assets should be greater than max_withdrawable.
             managed_assets(vault_share_asset)
         } else {
             0
         }
-    } 
- 
+    }
     #[storage(read)]
     fn max_depositable(
         receiver: Identity,
@@ -243,58 +357,55 @@ impl SRC6 for Contract {
         vault_sub_id: SubId,
     ) -> Option<u64> {
         if underlying_asset == AssetId::base() {
-            // This is the max value of u64 minus the current managed_assets. Ensures that the sum will always be lower than u64::MAX.
             Some(u64::max() - managed_assets(underlying_asset))
         } else {
             None
         }
     }
- 
+
     #[storage(read)]
     fn max_withdrawable(underlying_asset: AssetId, vault_sub_id: SubId) -> Option<u64> {
         if underlying_asset == AssetId::base() {
-            // In this implementation total_assets and max_withdrawable are the same. However in case of lending out of assets, total_assets should be greater than max_withdrawable.
             Some(managed_assets(underlying_asset))
         } else {
             None
         }
     }
 }
- 
+
 impl SRC20 for Contract {
     #[storage(read)]
     fn total_assets() -> u64 {
         storage.total_assets.try_read().unwrap_or(0)
     }
- 
+
     #[storage(read)]
     fn total_supply(asset: AssetId) -> Option<u64> {
         storage.total_supply.get(asset).try_read()
     }
- 
+
     #[storage(read)]
     fn name(asset: AssetId) -> Option<String> {
         storage.name.get(asset).read_slice()
     }
- 
+
     #[storage(read)]
     fn symbol(asset: AssetId) -> Option<String> {
         storage.symbol.get(asset).read_slice()
     }
- 
+
     #[storage(read)]
     fn decimals(asset: AssetId) -> Option<u8> {
         storage.decimals.get(asset).try_read()
     }
 }
- 
-/// Returns the vault shares assetid and subid for the given assets assetid and the vaults sub id
+
 fn vault_asset_id(underlying_asset: AssetId, vault_sub_id: SubId) -> (AssetId, SubId) {
     let share_asset_vault_sub_id = sha256((underlying_asset, vault_sub_id));
     let share_asset_id = AssetId::new(ContractId::this(), share_asset_vault_sub_id);
     (share_asset_id, share_asset_vault_sub_id)
 }
- 
+
 #[storage(read)]
 fn managed_assets(share_asset: AssetId) -> u64 {
     match storage.vault_info.get(share_asset).try_read() {
@@ -302,7 +413,7 @@ fn managed_assets(share_asset: AssetId) -> u64 {
         None => 0,
     }
 }
- 
+
 #[storage(read)]
 fn preview_deposit(
     underlying_asset: AssetId,
@@ -310,7 +421,7 @@ fn preview_deposit(
     assets: u64,
 ) -> (u64, AssetId, SubId) {
     let (share_asset_id, share_asset_vault_sub_id) = vault_asset_id(underlying_asset, vault_sub_id);
- 
+
     let shares_supply = storage.total_supply.get(share_asset_id).try_read().unwrap_or(0);
     if shares_supply == 0 {
         (assets, share_asset_id, share_asset_vault_sub_id)
@@ -322,7 +433,7 @@ fn preview_deposit(
         )
     }
 }
- 
+
 #[storage(read)]
 fn preview_withdraw(share_asset_id: AssetId, shares: u64) -> u64 {
     let supply = storage.total_supply.get(share_asset_id).read();
@@ -332,7 +443,7 @@ fn preview_withdraw(share_asset_id: AssetId, shares: u64) -> u64 {
         shares * (managed_assets(share_asset_id) / supply)
     }
 }
- 
+
 #[storage(read, write)]
 pub fn _mint(
     recipient: Identity,
@@ -340,9 +451,7 @@ pub fn _mint(
     vault_sub_id: SubId,
     amount: u64,
 ) {
-
     let supply = storage.total_supply.get(asset_id).try_read();
-    // Only increment the number of assets minted by this contract if it hasn't been minted before.
     if supply.is_none() {
         storage.total_assets.write(storage.total_assets.read() + 1);
     }
@@ -352,18 +461,16 @@ pub fn _mint(
         .insert(asset_id, current_supply + amount);
     mint_to(recipient, vault_sub_id, amount);
 }
- 
+
 #[storage(read, write)]
 pub fn _burn(asset_id: AssetId, vault_sub_id: SubId, amount: u64) {
     use std::{asset::burn, context::this_balance};
- 
+
     require(
         this_balance(asset_id) >= amount,
         "BurnError::NotEnoughCoins",
     );
-    // If we pass the check above, we can assume it is safe to unwrap.
     let supply = storage.total_supply.get(asset_id).try_read().unwrap();
     storage.total_supply.insert(asset_id, supply - amount);
     burn(vault_sub_id, amount);
 }
- 

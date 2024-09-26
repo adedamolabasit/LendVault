@@ -419,6 +419,58 @@ const abi = {
       ]
     },
     {
+      "inputs": [],
+      "name": "get_pool_interest",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "get_total_assets",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "get_total_collateral",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "get_total_debts",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
       "inputs": [
         {
           "name": "address",
@@ -752,6 +804,10 @@ const storageSlots: StorageSlot[] = [
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
+    "key": "5566029e5b130586bd3843f76ae7700befba14a0dd80c5fd1b26caf456cac3f4",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
     "key": "687e2b6f57e66f41b526c6c28302c42b4bd4a9bff88b491b5ee5b980ccd09962",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
@@ -768,6 +824,10 @@ export class LendVaultInterface extends Interface {
 
   declare functions: {
     get_loan_info: FunctionFragment;
+    get_pool_interest: FunctionFragment;
+    get_total_assets: FunctionFragment;
+    get_total_collateral: FunctionFragment;
+    get_total_debts: FunctionFragment;
     is_loan_repaid: FunctionFragment;
     lock_and_borrow: FunctionFragment;
     return_loan: FunctionFragment;
@@ -791,6 +851,10 @@ export class LendVault extends Contract {
   declare interface: LendVaultInterface;
   declare functions: {
     get_loan_info: InvokeFunction<[address: AddressInput], LoanInfoOutput>;
+    get_pool_interest: InvokeFunction<[], BN>;
+    get_total_assets: InvokeFunction<[], BN>;
+    get_total_collateral: InvokeFunction<[], BN>;
+    get_total_debts: InvokeFunction<[], BN>;
     is_loan_repaid: InvokeFunction<[address: AddressInput], boolean>;
     lock_and_borrow: InvokeFunction<[recipient: AddressInput, interest_rate: BigNumberish, loan_amount: BigNumberish, maturity_date: BigNumberish, collateral_price_at_liquidation: BigNumberish], void>;
     return_loan: InvokeFunction<[recipient: AddressInput, sub_id: string, interest_rate: BigNumberish], void>;

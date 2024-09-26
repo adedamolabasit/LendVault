@@ -4,29 +4,22 @@ import { useWallet, useAccount } from "@fuels/react";
 import { useEffect } from "react";
 import { toBech32 } from "fuels";
 import { Address } from "fuels";
-import { useWalletContext } from "../../providers/wallet.auth.provider";
+import { useWalletContext } from "../../providers/fuel.provider";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { Config } from "../../config";
-import { useFetchLoanInfo } from "../../hooks/useVaultQuery";
-import { getLoanInfo } from "../../api/query";
 
 export const Header = () => {
-  const { setInstance, setIdentityInput, instance, setAddressInput } =
-    useWalletContext();
+  const { setInstance, setIdentityInput, setAddressInput } = useWalletContext();
 
   const { connect, isConnecting } = useConnectUI();
   const { wallet } = useWallet();
   const { account } = useAccount();
   const { disconnect } = useDisconnect();
   const { isConnected } = useIsConnected();
-  const subID =
-    "0xea6f3a4433cd5e9747c4c9ad6bba344c3e968ca29629d28456e4ea79d0cad757";
 
   useEffect(() => {
     if (isConnected && wallet) {
       const contractInstance = new LendVault(Config.contract_id, wallet);
-
-      
 
       setInstance(contractInstance);
     }
@@ -34,17 +27,10 @@ export const Header = () => {
       const receiverAddress = new Address(toBech32(account));
       const identityInput = { Address: { bits: receiverAddress.toB256() } };
       const addressInput = { bits: account };
-      console.log(addressInput, "ieie", identityInput);
       setIdentityInput(identityInput);
       setAddressInput(addressInput);
-
-
-
- 
     }
   }, [isConnected, wallet, account]);
-
-
 
   return (
     <div className="w-full bg-white shadow z-10">

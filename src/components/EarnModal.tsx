@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, FC, useEffect } from "react";
+import { FC } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -8,21 +6,16 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
+import { EarnModalType } from "../types";
 
-type ModalType = {
-  canProceed: boolean;
-  setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSubmit: () => void;
-  depositAmount: number;
-  sharesAmount: number;
-};
 
-export const EarnModal: FC<ModalType> = ({
+
+export const EarnModal: FC<EarnModalType> = ({
   canProceed,
   setCanProceed,
   handleSubmit,
   depositAmount,
-  sharesAmount
+  sharesAmount,
 }) => {
   return (
     <Dialog
@@ -60,7 +53,9 @@ export const EarnModal: FC<ModalType> = ({
                     <dl className="divide-y divide-gray-200 text-sm">
                       <div className="flex items-center justify-between pb-4">
                         <dt className="text-gray-600">Loan Amount</dt>
-                        <dd className="font-medium text-gray-900">{depositAmount}</dd>
+                        <dd className="font-medium text-gray-900">
+                          {depositAmount}
+                        </dd>
                       </div>
                       <div className="flex items-center justify-between py-4">
                         <dt className="text-gray-600">

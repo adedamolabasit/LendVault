@@ -1,17 +1,17 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { FaDollarSign, FaEthereum } from "react-icons/fa";
 import { RepayAndBurnParams } from "../../types";
 import { useGetInvestment } from "../../hooks/useVaultMutate";
-import { useWalletContext } from "../../providers/wallet.auth.provider";
+import { useWalletContext } from "../../providers/fuel.provider";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
 
-export const Repay = () => {
+export const WithdrawPoolsFunds = () => {
   const { account, isLoading: accountLoading } = useAccount();
   const [currency, setCurrency] = useState("USD");
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const returnAndBurnMutation = useGetInvestment();
-  const { identityInput, instance, vaultSubID } = useWalletContext();
+  const { identityInput, instance } = useWalletContext();
   const query = new useVaultQuery();
 
   const { data: ownerVault, isLoading: vaultLoading } = query.fetchSingleVault(

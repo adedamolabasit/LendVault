@@ -1,6 +1,6 @@
-"use client";
+import { FC } from "react";
+import { BorrowModalType } from "../types";
 
-import { useState, FC, useEffect } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -9,18 +9,8 @@ import {
 } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-type ModalType = {
-  canProceed: boolean;
-  setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSubmit: () => void;
-  loadAmount: number;
-  assetAtLq: number;
-  collateralAmount: number;
-  interest: string;
-  maturityDate: any;
-};
 
-export const BorrowModal: FC<ModalType> = ({
+export const BorrowModal: FC<BorrowModalType> = ({
   canProceed,
   setCanProceed,
   handleSubmit,

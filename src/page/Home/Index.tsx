@@ -20,7 +20,7 @@ export const HomePage = () => {
             </p>
             <div className="mt-10 sm:flex sm:justify-center lg:justify-start">
               <div className="rounded-md shadow">
-                <button onClick={() => navigate('/information')} className="flex w-full items-center justify-center rounded-md border border-transparent bg-cyan-700 px-8 py-3 text-base font-medium text-white hover:bg-cyan-800 md:px-10 md:py-4 md:text-lg">
+                <button onClick={() => navigate('/dashboard')} className="flex w-full items-center justify-center rounded-md border border-transparent bg-cyan-700 px-8 py-3 text-base font-medium text-white hover:bg-cyan-800 md:px-10 md:py-4 md:text-lg">
                   Get started
                 </button>
               </div>

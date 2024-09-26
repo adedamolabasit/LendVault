@@ -1,55 +1,44 @@
 import { useState, useCallback, useEffect } from "react";
 import { InputBox } from "../../components/InputBox";
-import { useWalletContext } from "../../providers/wallet.auth.provider";
-import { LoanCalculator } from "../../utils/LoanCalculator";
+import { useWalletContext } from "../../providers/fuel.provider";
 import { useBorrowAndMint } from "../../hooks/useVaultMutate";
 import { BorrowAssetsParams } from "../../types";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
 import { BorrowModal } from "../../components/BorrowModal";
 import { toast } from "react-toastify";
-import moment from 'moment';
+import moment from "moment";
+import { LVT_PRICE_IN_DOLLARS } from "../../config";
 
 export const Borrow = () => {
   const { account } = useAccount();
-  const { borrowAmount, instance, addressInput, ethPrice, setBorrowAmount, setActiveButton } = useWalletContext();
+  const {
+    borrowAmount,
+    instance,
+    addressInput,
+    ethPrice,
+    setBorrowAmount,
+    setActiveButton,
+  } = useWalletContext();
   const borrowAndMintMutation = useBorrowAndMint();
   const query = new useVaultQuery();
-
-  const { data: ownerVault } = query.fetchSingleVault(account || "");
 
   const [canProceed, setCanProceed] = useState<boolean>(false);
   const [ethInToken, setEthInToken] = useState<number>(0.0);
   const [ethInUSD, setEthInUSD] = useState<number>(0.0);
   const [assetAtLq, setAssetAtLq] = useState<number>(0.0);
 
-  const priceInLVT = borrowAmount! * 5;
+  const { data: ownerVault } = query.fetchSingleVault(account || "");
 
-
-
-  const loanAmount = borrowAmount as number;
-  const liquidationThreshold = 150;
-  const loanStartDate = new Date();
-  const loanDurationDays = 90;
-  const interestRate = 5;
-  const borrowingLimit = 75;
-
-  const calculator = new LoanCalculator(
-    interestRate,
-    loanAmount,
-    liquidationThreshold,
-    loanStartDate,
-    loanDurationDays,
-    borrowingLimit
-  );
+  const priceInLVT = borrowAmount! * LVT_PRICE_IN_DOLLARS;
 
   const handleDepositAndMint = useCallback(
     (params: BorrowAssetsParams) => {
       borrowAndMintMutation.mutate(params, {
         onSuccess: () => {
           toast.success("Deposit and mint were successful!");
-          setCanProceed(false)
-          setActiveButton('vault')
+          setCanProceed(false);
+          setActiveButton("vault");
         },
         onError: (error: any) => {
           const errorMessage = error?.message || "";
@@ -79,35 +68,33 @@ export const Borrow = () => {
     const depositParams: BorrowAssetsParams = {
       addressInput,
       instance,
-      collateralAmount:ethInToken as number,
+      collateralAmount: ethInToken as number,
       loanAmount: priceInLVT,
       interestRate: 3,
       collateralAtLq: parseInt(assetAtLq.toFixed(2)),
-      maturityDate: parseInt(moment().add(30, 'days').format('YYYYMMDDHHmmss'))
-
+      maturityDate: parseInt(moment().add(30, "days").format("YYYYMMDDHHmmss")),
     };
 
     handleDepositAndMint(depositParams);
   };
-  console.log(parseInt(moment().add(30, 'days').format('YYYYMMDDHHmmss')), "kojo")
 
-  const next30Days = moment().add(30, 'days').format('dddd, MMMM DD, YYYY HH:mm');
+  const next30Days = moment()
+    .add(30, "days")
+    .format("dddd, MMMM DD, YYYY HH:mm");
 
   useEffect(() => {
     if (borrowAmount && ethPrice) {
-      const ethQty = 1 / ethPrice; 
+      const ethQty = 1 / ethPrice;
       const ethToLock = borrowAmount * ethQty * 2;
       const ethToLockInUSD = borrowAmount * ethQty * 2 * ethPrice;
-      const assetAtLqPrice = ethToLockInUSD * 0.75
-      
+      const assetAtLqPrice = ethToLockInUSD * 0.75;
       setEthInToken(ethToLock);
       setEthInUSD(ethToLockInUSD);
-      setAssetAtLq(assetAtLqPrice)
-      console.log(ethInToken?.toFixed(3),"ejwj")
+      setAssetAtLq(assetAtLqPrice);
     } else {
       setEthInToken(0);
       setEthInUSD(0);
-      setBorrowAmount(0)
+      setBorrowAmount(0);
     }
   }, [borrowAmount, ethPrice, ethInToken, assetAtLq]);
 
@@ -138,7 +125,9 @@ export const Borrow = () => {
                     {ethInToken?.toFixed(3) || "1"} ETH
                   </div>
                   <div className="scale-150">≍</div>
-                  <div className="text-indigo-600">${ethInUSD?.toFixed(2) || ethPrice}</div>
+                  <div className="text-indigo-600">
+                    ${ethInUSD?.toFixed(2) || ethPrice}
+                  </div>
                 </div>
               </dd>
             </div>
@@ -146,9 +135,13 @@ export const Borrow = () => {
               <dt className="text-gray-600">Loan amount (LVT TOKEN)</dt>
               <dd className="font-bold text-bg-cyan-800">
                 <div className="flex gap-2 items-center">
-                  <div className="text-cyan-800">{priceInLVT || "0.00"} LVT</div>
+                  <div className="text-cyan-800">
+                    {priceInLVT || "0.00"} LVT
+                  </div>
                   <div className="scale-150">≍</div>
-                  <div className="text-indigo-600">${borrowAmount?.toFixed(2) || 1}</div>
+                  <div className="text-indigo-600">
+                    ${borrowAmount?.toFixed(2) || 1}
+                  </div>
                 </div>
               </dd>
             </div>
@@ -160,9 +153,7 @@ export const Borrow = () => {
               <dt className="font-medium text-gray-900">
                 Liquidation Threshold
               </dt>
-              <dd className="font-medium text-indigo-600">
-                75% of Collateral
-              </dd>
+              <dd className="font-medium text-indigo-600">75% of Collateral</dd>
             </div>
             <div className="flex items-center justify-between py-4">
               <dt className="text-gray-600">Collateral Value at Liquidation</dt>
@@ -199,7 +190,7 @@ export const Borrow = () => {
         collateralAmount={ethInUSD}
         assetAtLq={assetAtLq}
         interest="3%"
-        maturityDate = {next30Days }
+        maturityDate={next30Days}
       />
     </div>
   );

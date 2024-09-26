@@ -2,18 +2,15 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   ReactNode,
 } from "react";
 import { LendVault } from "../swayContractFile";
-import { getRandomB256 } from "fuels";
 
 interface WalletContextType {
   activeButton: string
   setActiveButton: React.Dispatch<React.SetStateAction<string>>
   instance: LendVault | undefined;
   setInstance: React.Dispatch<React.SetStateAction<LendVault | undefined>>;
-  vaultSubID: string;
   setIdentityInput: React.Dispatch<any>;
   setAddressInput: React.Dispatch<any>;
   addressInput: any;
@@ -41,17 +38,11 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
   const [loanInfo, setLoanInfo] = useState<any>();
   const [ethPrice, setEthPrice] = useState<number | null>(null);
 
-
-
-  const vaultSubID = getRandomB256();
-
-
   return (
     <WalletContext.Provider
       value={{
         instance,
         setInstance,
-        vaultSubID,
         setIdentityInput,
         setAddressInput,
         identityInput,

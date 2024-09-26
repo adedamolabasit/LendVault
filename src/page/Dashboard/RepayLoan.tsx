@@ -1,50 +1,12 @@
-import { useState } from "react";
 import { RepayLoanParams } from "../../types";
 import { useRepayLoan } from "../../hooks/useVaultMutate";
-import { useWalletContext } from "../../providers/wallet.auth.provider";
-import { useVaultQuery } from "../../hooks/useVaultQuery";
+import { useWalletContext } from "../../providers/fuel.provider";
 import { toast } from "react-toastify";
 
 export const RepayLoan = () => {
-
-  const [currency, setCurrency] = useState("USD");
-  const [amount, setAmount] = useState<number | undefined>(undefined);
   const returnAndBurnMutation = useRepayLoan();
-  const {
-    identityInput,
-    instance,
-    vaultSubID,
-    addressInput,
-    loanInfo,
-    ethPrice,
-    setActiveButton
-  } = useWalletContext();
-  const query = new useVaultQuery();
-
-  // const { data: ownerVault, isLoading: vaultLoading } = query.fetchSingleVault(
-  //   account || ""
-  // );
-
-  // if (accountLoading || vaultLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (!ownerVault) {
-  //   return <div>No vault data available.</div>;
-  // }
-
-  const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrency(e.target.value);
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (!isNaN(value)) {
-      setAmount(value);
-    } else {
-      setAmount(undefined);
-    }
-  };
+  const { instance, addressInput, loanInfo, ethPrice, setActiveButton } =
+    useWalletContext();
 
   const handleSubmit = () => {
     if (instance) {
@@ -55,22 +17,16 @@ export const RepayLoan = () => {
       };
 
       returnAndBurnMutation.mutate(repayParams, {
-        onSuccess: (data) => {
+        onSuccess: () => {
           toast.success("Repayment successful!");
-          setActiveButton('vault')
+          setActiveButton("vault");
         },
         onError: (error) => {
           const errorMessage = error?.message || "";
 
           if (errorMessage.includes("No active loan")) {
-            toast.error(
-              "You  do not have an active loan."
-            );
-          } else if (
-            errorMessage.includes(
-              "ncorrect amount returned"
-            )
-          ) {
+            toast.error("You  do not have an active loan.");
+          } else if (errorMessage.includes("ncorrect amount returned")) {
             toast.error(
               "You must return the amount of borrowed loan in LVT token . Please ensure you have enough funds before proceeding."
             );
@@ -83,7 +39,7 @@ export const RepayLoan = () => {
       console.error("Invalid amount or instance");
     }
   };
-  const TOKEN_PRICE_IN_DOLLAR = 5
+  const TOKEN_PRICE_IN_DOLLAR = 5;
   if (loanInfo.has_loan) {
     return (
       <div className="h-5/6 w-full">
@@ -104,15 +60,18 @@ export const RepayLoan = () => {
                 <dd className="font-bold text-bg-cyan-800">
                   {ethPrice === null
                     ? "Loading..."
-                    : `$${((loanInfo?.collateralAmount / 1e9) * ethPrice).toFixed(
-                        2
-                      )}`}
+                    : `$${(
+                        (loanInfo?.collateralAmount / 1e9) *
+                        ethPrice
+                      ).toFixed(2)}`}
                 </dd>
               </div>
 
               <div className="flex items-center justify-between py-4">
                 <dt className="text-gray-600">Amount to returb</dt>
-                <dd className="font-medium text-gray-900">${((loanInfo?.tokenAmount ) / TOKEN_PRICE_IN_DOLLAR).toFixed(2)}</dd>
+                <dd className="font-medium text-gray-900">
+                  ${(loanInfo?.tokenAmount / TOKEN_PRICE_IN_DOLLAR).toFixed(2)}
+                </dd>
               </div>
               <div className="flex items-center justify-between pt-4">
                 <dt className="font-medium text-gray-900">Loan Duration</dt>
@@ -123,24 +82,13 @@ export const RepayLoan = () => {
 
           <div className="flex justify-center">
             <button
-              className="bg-cyan-800 cursor-pointer w-full"
+              className="bg-cyan-800 text-white cursor-pointer w-full"
               onClick={handleSubmit}
-              // onClick={() => setCanProceed(true)}
-              // disabled={!borrowAmount}
             >
               Proceed To Borrow
             </button>
           </div>
         </div>
-        {/* <BorrowModal
-      canProceed={canProceed}
-      setCanProceed={setCanProceed}
-      handleSubmit={handleSubmit}
-      loadAmount={borrowAmount as number}
-      collateralAmount={calculator.getCollateralmount()}
-      interest="5%"
-      repaymentDate="9304"
-    /> */}
       </div>
     );
   }

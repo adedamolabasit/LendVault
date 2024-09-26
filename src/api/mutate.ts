@@ -1,4 +1,4 @@
-import { bn, FuelError } from "fuels";
+import { bn, FuelError, sha256, createAssetId } from "fuels";
 import {
   DepositAndMintParams,
   RepayAndBurnParams,
@@ -7,14 +7,7 @@ import {
   RepayLoanParams,
   LoanInfoParams,
 } from "../types";
-import { AssetId } from "fuels";
-import { sha256 } from "fuels";
-import { createAssetId } from "fuels";
-import { getMintedAssetId } from "fuels";
-import { Config } from "../config";
-
-const DEFAULT_SUB_ID =
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
+import { Config, LVT_SUB_ID } from "../config";
 
 export const depositAndMint = async ({
   identityInput,
@@ -69,22 +62,23 @@ export const BorrowAndLock = async ({
   loanAmount,
   interestRate,
   collateralAtLq,
-  maturityDate
-
+  maturityDate,
 }: BorrowAssetsParams): Promise<any> => {
   const amount = bn.parseUnits(collateralAmount.toFixed(3));
   const collateralAtLqd = bn.parseUnits(collateralAtLq.toFixed(3));
-  console.log(amount,"eyww",collateralAtLq)
 
   if (instance) {
     try {
       const baseAssetId = instance.provider.getBaseAssetId();
-      // const BASE_ASSET: AssetId = {
-      //   bits: '0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c',
-      // };
 
       const tx = instance.functions
-        .lock_and_borrow(addressInput,interestRate,loanAmount,maturityDate, collateralAtLqd)
+        .lock_and_borrow(
+          addressInput,
+          interestRate,
+          loanAmount,
+          maturityDate,
+          collateralAtLqd
+        )
         .callParams({
           forward: [amount, baseAssetId],
         });
@@ -121,17 +115,13 @@ export const repayLoan = async ({
   repayAmount,
 }: RepayLoanParams): Promise<any> => {
   const amount = bn.parseUnits(repayAmount.toString());
-  const baseAssetId = instance?.provider.getBaseAssetId();
-  const BASE_ASSET: AssetId = {
-    bits: "0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c",
-  };
 
-  const tokentId = createAssetId(Config.contract_id, DEFAULT_SUB_ID);
+  const tokentId = createAssetId(Config.contract_id, LVT_SUB_ID);
 
   if (instance) {
     try {
       const tx = instance.functions
-        .return_loan(addressInput, DEFAULT_SUB_ID,3)
+        .return_loan(addressInput, LVT_SUB_ID, 3)
         .callParams({
           forward: [amount, tokentId.bits],
         });
@@ -226,7 +216,6 @@ export const getManagedAssets = async ({
   if (instance) {
     try {
       const assetIdInput = { bits: underlyingAsset };
-
       const { waitForResult } = await instance.functions
         .managed_assets(assetIdInput, vaultSubId)
         .call();
@@ -245,12 +234,7 @@ export const getLoanInfo = async ({
 }: LoanInfoParams): Promise<any> => {
   if (instance) {
     try {
-      const result = await instance.functions
-        .get_loan_info(addressInput)
-        .get();
-
-      // const result = await waitForResult();
-      console.log(result,"urrur")
+      const result = await instance.functions.get_loan_info(addressInput).get();
       return result.value;
     } catch (error: any) {
       throw new Error(`Error calling loan info: ${error.message}`);

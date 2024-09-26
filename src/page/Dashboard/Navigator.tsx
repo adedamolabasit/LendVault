@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { BorrowIcon } from "../../assets/Dashboard/BorrowIcon";
 import { ExchangeIcon } from "../../assets/Dashboard/ExchangeIcon";
 import { SecurityToken } from "../../assets/Dashboard/SecurityToken";
@@ -9,9 +8,9 @@ import { Borrow } from "./Borrow";
 import { Board } from "../../components/Board";
 import { Earn } from "./Earn";
 import { RepayLoan } from "./RepayLoan";
-import { useWalletContext } from "../../providers/wallet.auth.provider";
+import { useWalletContext } from "../../providers/fuel.provider";
 
-export const SubDashboard = () => {
+export const Navigator = () => {
   const { loanInfo, setActiveButton, activeButton } = useWalletContext();
 
   const buttons = [

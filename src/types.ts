@@ -50,3 +50,24 @@ export interface RepayAndBurnParams {
     addressInput: any,
     instance: LendVault | undefined,
   }
+
+
+  export type BorrowModalType = {
+    canProceed: boolean;
+    setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
+    handleSubmit: () => void;
+    loadAmount: number;
+    assetAtLq: number;
+    collateralAmount: number;
+    interest: string;
+    maturityDate: any;
+  };
+
+  export type EarnModalType = {
+    canProceed: boolean;
+    setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
+    handleSubmit: () => void;
+    depositAmount: number;
+    sharesAmount: number;
+  };
+  

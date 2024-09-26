@@ -1,34 +1,27 @@
-import { useVaultQuery } from "../hooks/useVaultQuery";
 import { LVTIcon } from "../assets/Dashboard/LVTIcon";
 import { EthereumIcon } from "../assets/Dashboard/EthereumIcon";
 import { useEffect, useState } from "react";
+import { getTotalDebts, getPoolInterest } from "../api/query";
+import { useWalletContext } from "../providers/fuel.provider";
 
 export const Board = () => {
-  const query = new useVaultQuery();
   const [totalDebts, setTotalDebts] = useState(0.0);
-  const [totalPaybacks, setTotalPaybacks] = useState(0.0);
-
-  const { data: allDebts, isFetching: fetchingDebts } = query.fetchTotalDebts();
-  const { data: allPaybacks, isFetching: fetchingPaybacks } = query.fetchTotalPaybacks();
+  const [poolInterest, setPoolInterest] = useState(0.0);
+  const { instance, ethPrice } = useWalletContext();
 
   useEffect(() => {
-    if (fetchingPaybacks || fetchingDebts) {
-      console.log("fecting.");
-    }
-    if (fetchingPaybacks || fetchingDebts) {
-      const debts = allDebts;
-      const paybacks = allPaybacks;
+    const getContractData = async () => {
+      const debts = await getTotalDebts({ instance });
+      const interest = await getPoolInterest({ instance });
       setTotalDebts(debts);
-      setTotalPaybacks(paybacks);
-    }
-  }, [allDebts, allPaybacks, totalDebts]);
-
-  console.log(totalDebts,"w1", totalPaybacks)
+      setPoolInterest(interest)
+    };
+    getContractData();
+  }, [instance]);
 
   const stats = [
     {
-      name: "Safety Pool",
-      // stat: allLockedAssets / 1e9,
+      name: "Collateral Locked",
       icon: (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
           <EthereumIcon className="w-8 h-8" />
@@ -37,15 +30,24 @@ export const Board = () => {
     },
     {
       name: "Total Debts",
-      stat: `$${(totalDebts! - totalPaybacks) / 5}`,
+      stat: `${totalDebts || 0} LVT` || "",
       icon: (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
           <LVTIcon className="w-8 h-8" />
         </div>
       ),
     },
-    // { name: "Share Holders", stat: allVaults },
+    {
+      name: "Interest",
+      stat: `$${(((poolInterest || 0 ) / 1e9) * ethPrice!).toFixed(2)}`,
+      icon: (
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
+          <LVTIcon className="w-8 h-8" />
+        </div>
+      ),
+    },
   ];
+
   return (
     <div className="bg-gray-400/5 mt-12 rounded-lg">
       <dl className="grid grid-cols-1 sm:grid-cols-3">
@@ -58,8 +60,8 @@ export const Board = () => {
               {item.icon}
               <div className="text-lg font-extrabold">{item.name}</div>
             </dt>
-            <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-              {item.stat}
+            <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 text-center">
+              {item.stat || 0}
             </dd>
           </div>
         ))}

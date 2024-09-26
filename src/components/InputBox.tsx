@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaDollarSign, FaEthereum } from "react-icons/fa";
-import { useWalletContext } from "../providers/wallet.auth.provider";
+import { useWalletContext } from "../providers/fuel.provider";
 
 export const InputBox = () => {
   const [currency, setCurrency] = useState("USD");
