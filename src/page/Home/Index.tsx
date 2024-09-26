@@ -1,4 +1,4 @@
-import lvBG from "../../Assets/Home/LV-BG.png";
+import lvBG from "../../assets/Home/LV-BG.png";
 import { Layout } from "../Layout/Index";
 import { useNavigate } from "react-router-dom";
 
