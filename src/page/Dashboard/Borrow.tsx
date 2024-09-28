@@ -1,14 +1,20 @@
 import { useState, useCallback, useEffect } from "react";
 import { InputBox } from "../../components/InputBox";
 import { useWalletContext } from "../../providers/fuel.provider";
-import { useBorrowAndMint , } from "../../hooks/useVaultMutate";
+import { useBorrowAndMint } from "../../hooks/useVaultMutate";
 import { BorrowAssetsParams } from "../../types";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
 import { BorrowModal } from "../../components/BorrowModal";
 import { toast } from "react-toastify";
 import moment from "moment";
-import { LVT_PRICE_IN_DOLLARS } from "../../config";
+import { Config, LVT_SUB_ID, LVT_PRICE_IN_DOLLARS } from "../../config";
+import { Asset, Fuel } from "fuels";
+import {
+  FuelWalletConnector,
+  FuelWalletDevelopmentConnector,
+  FueletWalletConnector,
+} from "@fuels/connectors";
 
 export const Borrow = () => {
   const { account } = useAccount();
@@ -33,14 +39,38 @@ export const Borrow = () => {
 
   const priceInLVT = amount! * LVT_PRICE_IN_DOLLARS;
 
+  const fuel = new Fuel({
+    connectors: [
+      new FuelWalletDevelopmentConnector(),
+      new FueletWalletConnector(),
+      new FuelWalletConnector(),
+    ],
+  });
+
   const handleDepositAndMint = useCallback(
     (params: BorrowAssetsParams) => {
       borrowAndMintMutation.mutate(params, {
-        onSuccess: () => {
-          toast.success("Deposit and mint were successful!");
+        onSuccess: async () => {
+          const asset: Asset = {
+            name: "LVT Stable Token",
+            symbol: "LVT",
+            icon: Config.lvtIcon,
+            networks: [
+              {
+                type: "fuel",
+                chainId: 0,
+                decimals: 9,
+                assetId: LVT_SUB_ID,
+                contractId: Config.contract_id,
+              },
+            ],
+          };
+
+          await fuel.addAssets([asset]);
+          toast.success("Loan Borrowed successful!");
           setCanProceed(false);
           setActiveButton("vault");
-          setIsLoading(false)
+          setIsLoading(false);
         },
         onError: (error: any) => {
           const errorMessage = error?.message || "";
@@ -60,7 +90,7 @@ export const Borrow = () => {
           } else {
             toast.error(`An unexpected error occurred: ${errorMessage}`);
           }
-          setIsLoading(false)
+          setIsLoading(false);
         },
       });
     },
@@ -79,7 +109,7 @@ export const Borrow = () => {
     };
 
     handleDepositAndMint(depositParams);
-    setIsLoading(true)
+    setIsLoading(true);
   };
 
   const next30Days = moment()
@@ -175,14 +205,14 @@ export const Borrow = () => {
         <div className="flex justify-center">
           <button
             className={`${
-              !amount
+              !amount || !account
                 ? "bg-cyan-700 opacity-60 cursor-not-allowed"
                 : "bg-cyan-800 cursor-pointer"
             } w-full bg-cyan-800 text-white`}
             onClick={() => setCanProceed(true)}
             disabled={!amount}
           >
-            Proceed To Borrow
+            {!account ? "Connect Your Wallet" : "Proceed To Borrow"}
           </button>
         </div>
       </div>

@@ -9,7 +9,6 @@ import {
 } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-
 export const BorrowModal: FC<BorrowModalType> = ({
   canProceed,
   setCanProceed,
@@ -20,12 +19,12 @@ export const BorrowModal: FC<BorrowModalType> = ({
   interest,
   maturityDate,
   isLoading,
-  setIsLoading
+  setIsLoading,
 }) => {
   const cancelTransaction = () => {
     setCanProceed(false);
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
   return (
     <Dialog
       open={canProceed}
@@ -113,12 +112,12 @@ export const BorrowModal: FC<BorrowModalType> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className={`${isLoading && "cursor-not-allowed opacity-60"} flex w-full justify-center items-center cursor-pointer rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700`}
+                className={`${
+                  isLoading && "cursor-not-allowed opacity-60"
+                } flex w-full justify-center items-center cursor-pointer rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700`}
                 disabled={isLoading}
               >
-                {
-                  isLoading ? "Borrowing..." : "Borrow"
-                }
+                {isLoading ? "Borrowing..." : "Borrow"}
               </button>
             </div>
           </DialogPanel>

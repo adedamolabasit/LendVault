@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { InputBox } from "../../components/InputBox";
-import { useWalletContext } from "../../providers/fuel.provider"
+import { useWalletContext } from "../../providers/fuel.provider";
 import { useDepositToPool } from "../../hooks/useVaultMutate";
 import { BorrowAndMintParams } from "../../types";
 import { Fuel, Asset } from "fuels";
@@ -13,6 +13,7 @@ import {
   FueletWalletConnector,
 } from "@fuels/connectors";
 import { SafetyPoolModal } from "../../components/SafetyPoolModal";
+import { toast } from "react-toastify";
 
 export const SafetyPool = () => {
   const { account } = useAccount();
@@ -39,15 +40,16 @@ export const SafetyPool = () => {
     (params: BorrowAndMintParams) => {
       depositAndMintMutation.mutate(params, {
         onError: (error: any) => {
-          console.log("Something went wrong:", error);
+          const errorMessage = error?.message || "";
+          toast.error(`An unexpected error occurred: ${errorMessage}`);
           setIsLoading(true);
         },
         onSuccess: async () => {
-          if (!ownerVault) {
+          if (ownerVault) {
             const asset: Asset = {
-              name: "LV SHARES",
+              name: "LVS SHARES",
               symbol: "LVS",
-              icon: Config.lvtIcon,
+              icon: "https://svgshare.com/s/1AsB",
               networks: [
                 {
                   type: "fuel",
@@ -61,6 +63,7 @@ export const SafetyPool = () => {
 
             await fuel.addAssets([asset]);
           }
+          toast.success("LVT token deposited successful!");
           setCanProceed(false);
           setActiveButton("vault");
           setIsLoading(true);
@@ -88,7 +91,7 @@ export const SafetyPool = () => {
         Secure Your Future with Safety Pool
       </h2>
       <div className="w-full">
-        <InputBox />
+        <InputBox lvt={true} />
       </div>
 
       <div className="rounded-lg bg-gray-50 px-4 py-6">
@@ -107,13 +110,13 @@ export const SafetyPool = () => {
       <div className="flex justify-center">
         <button
           className={`${
-            !amount
+            !amount || !account
               ? "bg-cyan-700 opacity-60 cursor-not-allowed"
               : "bg-cyan-800 hover:bg-cyan-900 cursor-pointer"
           } w-full py-2 text-white text-lg font-semibold rounded-lg transition duration-300 ease-in-out`}
           onClick={() => setCanProceed(true)}
         >
-          Deposit To Earn
+          {!account ? "Connect Your Wallet" : "Deposit Token"}
         </button>
       </div>
       <SafetyPoolModal

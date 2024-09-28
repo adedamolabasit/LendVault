@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useState, FC } from "react";
 import { FaDollarSign, FaEthereum } from "react-icons/fa";
 import { useWalletContext } from "../providers/fuel.provider";
+import { LVTIcon } from "../assets/Dashboard/LVTIcon";
 
-export const InputBox = () => {
+
+type inputTypes = {
+  lvt?: boolean;
+};
+
+export const InputBox: FC<inputTypes> = ({ lvt }) => {
   const [currency, setCurrency] = useState("USD");
   const {  amount, setAmount } = useWalletContext();
 
@@ -21,15 +27,21 @@ export const InputBox = () => {
     <div>
       <div className="relative mt-2 rounded-md shadow-sm">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <span className="text-gray-500 sm:text-sm">
-            {currency === "USD" ? <FaDollarSign /> : <FaEthereum />}
+        <span className="text-gray-500 sm:text-sm">
+            {lvt ? (
+              <LVTIcon className="w-4" />
+            ) : currency === "USD" ? (
+              <FaDollarSign />
+            ) : (
+              <FaEthereum />
+            )}
           </span>
         </div>
         <input
           id="price"
           name="price"
           type="number"
-          placeholder={`${amount}`}
+          placeholder={`${amount}` || "0"}
           min=""
           onChange={handleAmountChange}
           className="block w-full h-14 rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 sm:text-sm sm:leading-6"
@@ -45,8 +57,14 @@ export const InputBox = () => {
             onChange={handleCurrencyChange}
             className="h-full rounded-md border-0 bg-transparent py-0 pl-2 mr-7 text-gray-500 focus:outline-none focus:ring-0 sm:text-sm"
           >
-            <option value="USD">USD</option>
-            <option value="ETH">ETH</option>
+           {lvt ? (
+              <option value="USD">LVT</option>
+            ) : (
+              <div>
+                <option value="USD">USD</option>
+                <option value="ETH">ETH</option>
+              </div>
+            )}
           </select>
         </div>
       </div>

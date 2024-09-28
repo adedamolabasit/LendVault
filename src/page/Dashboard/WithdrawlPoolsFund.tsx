@@ -22,8 +22,6 @@ export const WithdrawPoolsFunds = () => {
     return <div>Loading...</div>;
   }
 
-  console.log(ownerVault,"iuiei")
-
   if (!ownerVault) {
     return <div>No vault data available.</div>;
   }
@@ -48,7 +46,7 @@ export const WithdrawPoolsFunds = () => {
         vaultSubID: ownerVault.vaultId,
         underlyingAsset: ownerVault.assetId,
         withdrawAmount: 0.001,
-        instance
+        instance,
       };
 
       returnAndBurnMutation.mutate(repayParams, {
@@ -57,7 +55,7 @@ export const WithdrawPoolsFunds = () => {
         },
         onError: (error) => {
           console.error("Error during repayment:", error);
-        }
+        },
       });
     } else {
       console.error("Invalid amount or instance");
@@ -104,7 +102,10 @@ export const WithdrawPoolsFunds = () => {
           </select>
         </div>
       </div>
-      <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleSubmit}>
+      <button
+        className="bg-red-600 text-white px-4 py-2 rounded"
+        onClick={handleSubmit}
+      >
         Repay
       </button>
     </div>

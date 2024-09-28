@@ -38,10 +38,11 @@ export const Navigator = () => {
     },
     {
       title: "Exchange",
-      description: "Exchange Token",
-      icon: <EarnIcon />,
-      component: <RepayLoan />, // Replace this with your actual Exchange component when available
+      description: "Coming Soon",
+      icon: <ExchangeIcon />,
+      component: null,
       key: "exchange",
+      disabled: true,
     },
   ];
 
@@ -64,9 +65,10 @@ export const Navigator = () => {
               <button
                 key={button.key}
                 onClick={() => handleButtonClick(button.key)}
+                disabled={button.key === "exchange"}
                 className={`flex flex-col justify-center items-center gap-6 h-40 w-60 drop-shadow-lg rounded-lg cursor-pointer 
           ${activeButton === button.key ? "bg-cyan-800" : "bg-gray-400/5"} 
-          group hover:border-cyan-800`}
+          group hover:border-cyan-800 ${button.key === "exchange" ? "cursor-not-allowed" : "cursor-pointer"}`}
               >
                 {button.icon}
                 <div className="flex flex-col gap-2">

@@ -15,7 +15,7 @@ export const RepayLoan = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     if (instance) {
       const repayParams: RepayLoanParams = {
         addressInput,
@@ -27,7 +27,7 @@ export const RepayLoan = () => {
         onSuccess: () => {
           toast.success("Repayment successful!");
           setActiveButton("vault");
-          setIsLoading(false)
+          setIsLoading(false);
         },
         onError: (error) => {
           const errorMessage = error?.message || "";
@@ -41,7 +41,7 @@ export const RepayLoan = () => {
           } else {
             toast.error(`An unexpected error occurred: ${errorMessage}`);
           }
-          setIsLoading(false)
+          setIsLoading(false);
         },
       });
     } else {
@@ -53,7 +53,6 @@ export const RepayLoan = () => {
     ethPrice === null
       ? "Loading..."
       : `$${((loanInfo?.collateralAmount / 1e9) * ethPrice).toFixed(2)}`;
-
 
   if (loanInfo.has_loan) {
     return (

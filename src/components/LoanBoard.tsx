@@ -5,11 +5,10 @@ import {
   getTotalDebts,
   getPoolInterest,
   getLockedCollateral,
-  getTotalBorrowers
+  getTotalBorrowers,
 } from "../api/query";
 import { useWalletContext } from "../providers/fuel.provider";
 
-// Loader Pulse Component
 const LoaderPulse = () => (
   <div className="flex justify-center items-center">
     <div className="h-8 w-8 bg-gray-300 rounded-full animate-pulse"></div>
@@ -84,7 +83,9 @@ export const LoanBoard = () => {
             className="overflow-hidden rounded-lg bg-white border-2 border-bg-cyan-800 px-4 py-5 shadow"
           >
             <dt className="truncate font-medium text-gray-500 flex items-center gap-4 h-12">
-              <div className="text-lg font-extrabold w-full text-center">{item.name}</div>
+              <div className="text-lg font-extrabold w-full text-center">
+                {item.name}
+              </div>
             </dt>
             <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 text-center">
               {totalCollateral || poolInterest || totalCollateral ? (
@@ -92,7 +93,6 @@ export const LoanBoard = () => {
               ) : (
                 <LoaderPulse />
               )}{" "}
-              {/* Render loader when data is not available */}
             </dd>
           </div>
         ))}

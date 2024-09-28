@@ -12,9 +12,10 @@ import { EthereumIcon } from "../../assets/Dashboard/EthereumIcon";
 import { VaultLoader } from "../../components/VaultLoader";
 import { useWalletContext } from "../../providers/fuel.provider";
 import { getLoanInfo } from "../../api/query";
-import moment from "moment";
 import { bn } from "fuels";
 import { LoanBoard } from "../../components/LoanBoard";
+import { FaDollarSign } from "react-icons/fa";
+
 
 interface Stat {
   name: string;
@@ -40,9 +41,7 @@ export default function Vault() {
   } = useWalletContext();
   const query = new useVaultQuery();
 
-  const { isLoading: vaultLoading } = query.fetchSingleBorrower(
-    account || ""
-  );
+  const { isLoading: vaultLoading } = query.fetchSingleBorrower(account || "");
 
   const {
     data: ethPriceRaw,
@@ -85,18 +84,11 @@ export default function Vault() {
     };
 
     getInfo();
-  }, [instance, addressInput]);
+  }, [account, instance]);
 
   useEffect(() => {
-    if (!ethPrice) {
-      refetchEthPrice();
-    }
-    const intervalId = setInterval(() => {
-      refetchEthPrice();
-    }, 90000);
-
-    return () => clearInterval(intervalId);
-  }, [refetchEthPrice, ethPrice]);
+    refetchEthPrice();
+  }, [ethPrice]);
 
   const activityItems: ActivityItem[] = [
     {
@@ -132,20 +124,11 @@ export default function Vault() {
       icon: <ChartBarSquareIcon className="h-8 w-8" />,
     },
     {
-      name: "Value at Liquidation",
-      value:
-        loanInfo === null
-          ? "Loading..."
-          : `$${bn(loanInfo?.assetPriceAtLq)}` || "N/A",
+      name: "Liquidation Threshold",
+      value: "75%",
+      icon: <ChartBarSquareIcon className="h-8 w-8" />,
     },
   ];
-
-  const parsedDate = loanInfo?.duration
-    ? moment(loanInfo?.duration, "YYYYMMDDHHmmss")
-    : null;
-  const readableDate = parsedDate
-    ? parsedDate.format("MMMM Do YYYY, h:mm:ss a")
-    : "N/A";
 
   return (
     <DashWrapper>
@@ -166,13 +149,34 @@ export default function Vault() {
               </h3>
             </div>
             <ul role="list" className="mt-4 space-y-4">
-              {activityItems.map((activity) => (
-                <li className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10">
+              {activityItems.map((activity, index) => (
+                <li
+                  key={index}
+                  className="relative flex justify-between gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10"
+                >
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold leading-6 text-gray-900">
-                      <span>{activity.user.address}</span>{" "}
+                      <span className="font-bold">{activity.user.address}</span>
                     </p>
-                    <p className="text-sm text-gray-500">{readableDate}</p>
+
+                    {!loanInfo ? (
+                      <p className="text-sm text-grey-500">No Connection</p>
+                    ) : loanInfo.has_loan ? (
+                      <p className="text-sm text-green-500">Active Loan</p>
+                    ) : (
+                      <p className="text-sm text-cyan-800">No Active Loan</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex gap-2">
+                      <LVTIcon className="w-6 h-6" />
+                      <span className="text-gray-900 font-semibold">5 LVT</span>
+                    </div>
+                    <div className="text-2xl font-bold">≍</div>
+                    <div className="flex gap-2">
+                    <span className="text-gray-900 font-semibold">1 USD</span>
+                      <FaDollarSign className="text-green-500 w-6 h-6 mr-1" />
+                    </div>
                   </div>
                 </li>
               ))}

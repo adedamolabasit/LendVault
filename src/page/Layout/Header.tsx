@@ -7,9 +7,10 @@ import { Address } from "fuels";
 import { useWalletContext } from "../../providers/fuel.provider";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { Config } from "../../config";
+import { Link } from "react-router-dom";
 
 export const Header = () => {
-  const { setInstance, setIdentityInput, setAddressInput, instance } = useWalletContext();
+  const { setInstance, setIdentityInput, setAddressInput } = useWalletContext();
 
   const { connect, isConnecting } = useConnectUI();
   const { wallet } = useWallet();
@@ -29,17 +30,20 @@ export const Header = () => {
       setIdentityInput(identityInput);
       setAddressInput(addressInput);
     }
-  }, [isConnected, wallet, account, instance]);
+  }, [isConnected, wallet, account, disconnect]);
 
   return (
     <div className="w-full bg-white shadow z-10">
       <div className="flex justify-between w-full px-6 py-4">
-        <div className="text-2xl font-extrabold flex items-center gap-4">
-          <div className="scale-25">
-            <LVTIcon />
+        <Link to="./">
+          <div className="text-2xl font-extrabold flex items-center gap-4 cursor-pointer text-black">
+            <div className="scale-25">
+              <LVTIcon />
+            </div>
+            <div>LendVault</div>
           </div>
-          <div>LendVault</div>
-        </div>
+        </Link>
+
         {isConnected ? (
           <button
             type="button"

@@ -8,7 +8,6 @@ interface LayoutProps {
 export const Layout: FC<LayoutProps> = ({ children }) => {
   return (
     <div className="relative flex flex-col h-screen w-screen overflow-hidden">
-
       <Header />
       <div className="flex-1 flex items-center justify-center">{children}</div>
     </div>

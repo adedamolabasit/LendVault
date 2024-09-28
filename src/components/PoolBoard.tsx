@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import {
   getPoolInterest,
   getSafteyPoolBalanace,
-  getTotalSharesHolder
+  getTotalSharesHolder,
 } from "../api/query";
 import { useWalletContext } from "../providers/fuel.provider";
 
@@ -16,31 +16,44 @@ const LoaderPulse = () => (
 
 export const PoolBoard = () => {
   const [poolInterest, setPoolInterest] = useState<number | null>(null);
-  const [saftyPoolBalance, setSavetyPoolBalance] = useState<number | null>(null);
-  const [totalSharesHolder, setTotalSharesHolder] = useState<number | null>(null);
+  const [saftyPoolBalance, setSavetyPoolBalance] = useState<number | null>(
+    null
+  );
+  const [totalSharesHolder, setTotalSharesHolder] = useState<number | null>(
+    null
+  );
   const { instance, ethPrice } = useWalletContext();
 
   useEffect(() => {
     const getContractData = async () => {
       try {
-
         const interest = await getPoolInterest({ instance });
         const poolBalance = await getSafteyPoolBalanace({ instance });
         const sharesHolder = await getTotalSharesHolder({ instance });
 
-
         setPoolInterest(interest);
         setSavetyPoolBalance(poolBalance);
-        setTotalSharesHolder( sharesHolder );
-
+        setTotalSharesHolder(sharesHolder);
       } catch (error) {
         console.error("Error fetching contract data:", error);
       }
     };
     getContractData();
-  }, [totalSharesHolder,poolInterest, saftyPoolBalance, instance]);
+  }, [totalSharesHolder, poolInterest, saftyPoolBalance, instance]);
 
   const stats = [
+    {
+      name: "Interest Gained",
+      stat:
+        poolInterest !== null
+          ? `$${(((poolInterest || 0) / 1e9) * ethPrice!).toFixed(2)}`
+          : null,
+      icon: (
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
+          <LVTIcon className="w-8 h-8" />
+        </div>
+      ),
+    },
     {
       name: "Safety Pool (LVT)",
       stat: saftyPoolBalance !== null ? `${saftyPoolBalance || 0} LVT` : null,
@@ -51,19 +64,8 @@ export const PoolBoard = () => {
       ),
     },
     {
-      name: "Interest Gained",
-      stat:  poolInterest !== null
-      ? `$${(((poolInterest || 0) / 1e9) * ethPrice!).toFixed(2)}`
-      : null,
-      icon: (
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
-          <LVTIcon className="w-8 h-8" />
-        </div>
-      ),
-    },
-    {
       name: "Share Holders",
-      stat:  totalSharesHolder !== null ? `${totalSharesHolder || 0} ` : null,
+      stat: totalSharesHolder !== null ? `${totalSharesHolder || 0} ` : null,
       icon: (
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
           <LVTIcon className="w-8 h-8" />
@@ -92,7 +94,6 @@ export const PoolBoard = () => {
               ) : (
                 <LoaderPulse />
               )}{" "}
-
             </dd>
           </div>
         ))}
