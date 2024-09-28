@@ -35,7 +35,7 @@ export const Header = () => {
   return (
     <div className="w-full bg-white shadow z-10">
       <div className="flex justify-between w-full px-6 py-4">
-        <Link to="./">
+        <Link to="/">
           <div className="text-2xl font-extrabold flex items-center gap-4 cursor-pointer text-black">
             <div className="scale-25">
               <LVTIcon />
