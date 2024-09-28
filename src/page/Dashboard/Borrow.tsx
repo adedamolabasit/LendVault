@@ -51,6 +51,7 @@ export const Borrow = () => {
     (params: BorrowAssetsParams) => {
       borrowAndMintMutation.mutate(params, {
         onSuccess: async () => {
+          toast.success("Loan Borrowed successful!");
           const asset: Asset = {
             name: "LVT Stable Token",
             symbol: "LVT",
@@ -67,7 +68,6 @@ export const Borrow = () => {
           };
 
           await fuel.addAssets([asset]);
-          toast.success("Loan Borrowed successful!");
           setCanProceed(false);
           setActiveButton("vault");
           setIsLoading(false);

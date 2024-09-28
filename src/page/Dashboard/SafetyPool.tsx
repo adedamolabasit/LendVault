@@ -45,6 +45,7 @@ export const SafetyPool = () => {
           setIsLoading(true);
         },
         onSuccess: async () => {
+          toast.success("LVT token deposited successful!");
           if (ownerVault) {
             const asset: Asset = {
               name: "LVS SHARES",
@@ -63,7 +64,6 @@ export const SafetyPool = () => {
 
             await fuel.addAssets([asset]);
           }
-          toast.success("LVT token deposited successful!");
           setCanProceed(false);
           setActiveButton("vault");
           setIsLoading(true);
