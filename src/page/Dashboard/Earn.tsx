@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SavetyPool } from "../../assets/Earn/SafetyPool";
-import { SafetyPool } from "./SavetyPool";
+import { SafetyPool } from "./SafetyPool";
 
 const steps = [
   { id: "01", name: "How You Earn", status: "complete" },
@@ -12,7 +12,7 @@ const safetyPool = [
   {
     name: "Safety Pool",
     description:
-      "Deposit a certain amount into the safety pool, which is secured in the vault. A token representing shares in this pool is minted to the user. As loans are made, the interest earned is distributed among users based on the shares they hold. If the collateral asset drops below a threshold, the safety pool will save it by covering the shortfall. This mechanism ensures that holders of shares are informed of low-risk collateral and can withdraw their proportional funds from the vault when necessary.",
+      "Deposit a certain amount into the safety pool, which is secured in the vault. A token representing shares in this pool is minted to the user. As loans are made, the interest earned is distributed among users based on the shares they hold. If the collateral asset drops below a threshold, the safety pool will save it by covering the shortfall.",
     icon: <SavetyPool className="text-white" />,
   },
   {
@@ -21,7 +21,6 @@ const safetyPool = [
       "Users can deposit assets into the safety pool, which is secured in a vault. This is essentially a reserve designed to back the lending activities of the protocol.",
     icon: <SavetyPool className="text-white" />,
   },
-
   {
     name: "Minting Shares",
     description:
@@ -49,7 +48,7 @@ const safetyPool = [
   {
     name: "Withdrawals",
     description:
-      "When users want to exit, they can withdraw their proportional share from the safety pool based on the amount of shares they own, ensuring they can realize their earnings from interest distributions.",
+      "When users want to exit, they can withdraw their proportional share from the safety pool based on the amount of shares they own.",
     icon: <SavetyPool className="text-white" />,
   },
 ];
@@ -76,7 +75,7 @@ const participationSteps = [
   {
     name: "Interest Distribution",
     description:
-      "As interest accumulates, it is automatically allocated to users according to their share of the safety pool. This means the more tokens a user deposits, the greater their share of the interest earned.",
+      "As interest accumulates, it is automatically allocated to users according to their share of the safety pool. The more tokens a user deposits, the greater their share of the interest earned.",
     icon: <SavetyPool className="text-white" />,
   },
   {
@@ -90,17 +89,30 @@ const participationSteps = [
 export const Earn = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
-  const handleNextStep = () => {
-    if (currentStep < steps.length) setCurrentStep(currentStep + 1);
-  };
-
-  const handlePreviousStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  const handleStepChange = (stepIndex: number) => {
+    setCurrentStep(stepIndex);
   };
 
   return (
     <div className="flex flex-col items-center h-[100vh] w-full mt-5 px-4 overflow-auto">
-      <div className="relative max-w-xl h-4/6 p-6 bg-gray-50 shadow rounded-lg w-full overflow-auto mb-20">
+      {/* Stepper Component */}
+      <div className="flex space-x-4 mb-8">
+        {steps.map((step, index) => (
+          <button
+            key={step.id}
+            onClick={() => handleStepChange(index + 1)}
+            className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+              currentStep === index + 1
+                ? "border-cyan-800 bg-cyan-800 text-white"
+                : "border-gray-400 bg-white text-gray-600"
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative max-w-xl h-4/6 p-6 bg-gray-50 shadow rounded-lg w-full mb-20">
         {currentStep === 1 && (
           <div>
             <h2 className="text-xl font-bold mb-6">{steps[0].name}</h2>
@@ -131,10 +143,12 @@ export const Earn = () => {
               {participationSteps.map((participation) => (
                 <div key={participation.name}>
                   <dt className="text-base font-semibold leading-7 text-gray-900">
-                    <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-800">
-                      {participation.icon}
+                    <div className="flex gap-4 items-center h-10 mb-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-800">
+                        {participation.icon}
+                      </div>
+                      {participation.name}
                     </div>
-                    {participation.name}
                   </dt>
                   <dd className="mt-1 text-base leading-7 text-gray-600">
                     {participation.description}
@@ -145,32 +159,7 @@ export const Earn = () => {
           </div>
         )}
 
-        {currentStep === 3 && (
-          <div className="h-full w-full bg-gray-50 ">
-            <SafetyPool />
-          </div>
-        )}
-      </div>
-
-      <div className="sticky bottom-4 flex justify-end gap-4 w-full max-w-4xl">
-        {currentStep > 1 && (
-          <button
-            onClick={handlePreviousStep}
-            className="px-4 border border-cyan-800 text-black py-2 rounded-lg hover:bg-cyan-700 transition"
-          >
-            Previous
-          </button>
-        )}
-
-        {currentStep < steps.length && (
-          <button
-            onClick={handleNextStep}
-            className="px-4 bg-cyan-800 text-white py-2 rounded-lg hover:bg-cyan-700 transition"
-          >
-            Next
-          </button>
-        )}
-
+        {currentStep === 3 && <SafetyPool />}
       </div>
     </div>
   );

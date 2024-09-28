@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { BorrowModalType } from "../types";
+import { SaftetyPoolModalType } from "../types";
 
 import {
   Dialog,
@@ -9,23 +9,18 @@ import {
 } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-
-export const BorrowModal: FC<BorrowModalType> = ({
+export const SafetyPoolModal: FC<SaftetyPoolModalType> = ({
   canProceed,
   setCanProceed,
   handleSubmit,
-  loadAmount,
-  assetAtLq,
-  collateralAmount,
-  interest,
-  maturityDate,
+  amountToDeposit,
   isLoading,
-  setIsLoading
+  setIsLoading,
 }) => {
   const cancelTransaction = () => {
     setCanProceed(false);
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
   return (
     <Dialog
       open={canProceed}
@@ -61,40 +56,9 @@ export const BorrowModal: FC<BorrowModalType> = ({
                   <div className="rounded-lg bg-gray-50 px-4 py-6">
                     <dl className="divide-y divide-gray-200 text-sm">
                       <div className="flex items-center justify-between pb-4">
-                        <dt className="text-gray-600">Loan Amount</dt>
+                        <dt className="text-gray-600">Amount to Deposit</dt>
                         <dd className="font-medium text-gray-900">
-                          ${loadAmount.toFixed(2)}
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between py-4">
-                        <dt className="text-gray-600">
-                          Assets to Deposit (Ether)
-                        </dt>
-                        <dd className="font-bold text-bg-cyan-800">
-                          ${collateralAmount.toFixed(2)}
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between py-4">
-                        <dt className="text-gray-600">
-                          Collateral at Liquidation
-                        </dt>
-                        <dd className="font-bold text-bg-cyan-800">
-                          ${assetAtLq.toFixed(2)}
-                        </dd>
-                      </div>
-                      <div className="flex items-center justify-between py-4">
-                        <dt className="text-gray-600">Interest</dt>
-                        <dd className="font-medium text-gray-900">
-                          {interest}
-                        </dd>
-                      </div>
-
-                      <div className="flex items-center justify-between py-4">
-                        <dt className="font-medium text-gray-900">
-                          Maturity Date
-                        </dt>
-                        <dd className="font-medium text-gray-900">
-                          {maturityDate}
+                          ${amountToDeposit}
                         </dd>
                       </div>
                     </dl>
@@ -113,12 +77,12 @@ export const BorrowModal: FC<BorrowModalType> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className={`${isLoading && "cursor-not-allowed opacity-60"} flex w-full justify-center items-center cursor-pointer rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700`}
+                className={`${
+                  isLoading && "cursor-not-allowed opacity-60"
+                } flex w-full justify-center items-center cursor-pointer rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700`}
                 disabled={isLoading}
               >
-                {
-                  isLoading ? "Borrowing..." : "Borrow"
-                }
+                {isLoading ? "Depositing..." : "Deposit"}
               </button>
             </div>
           </DialogPanel>

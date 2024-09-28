@@ -78,6 +78,15 @@ export class useVaultQuery {
     });
   }
 
+  fetchTotalBorrowers(): UseQueryResult<any, Error> {
+    return useQuery({
+      queryKey: ["totalVaults"],
+      queryFn: fetchTotalVaults,
+      enabled: true,
+      retry: 3,
+    });
+  }
+
 }
 
 

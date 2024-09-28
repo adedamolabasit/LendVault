@@ -9,7 +9,7 @@ import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { Config } from "../../config";
 
 export const Header = () => {
-  const { setInstance, setIdentityInput, setAddressInput } = useWalletContext();
+  const { setInstance, setIdentityInput, setAddressInput, instance } = useWalletContext();
 
   const { connect, isConnecting } = useConnectUI();
   const { wallet } = useWallet();
@@ -20,7 +20,6 @@ export const Header = () => {
   useEffect(() => {
     if (isConnected && wallet) {
       const contractInstance = new LendVault(Config.contract_id, wallet);
-
       setInstance(contractInstance);
     }
     if (account) {
@@ -30,7 +29,7 @@ export const Header = () => {
       setIdentityInput(identityInput);
       setAddressInput(addressInput);
     }
-  }, [isConnected, wallet, account]);
+  }, [isConnected, wallet, account, instance]);
 
   return (
     <div className="w-full bg-white shadow z-10">

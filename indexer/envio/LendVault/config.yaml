@@ -7,7 +7,7 @@ networks:
   contracts:
   - name: LendVault
     address:
-    - 0x4a0f9ad111470bab0e59e85fcafe16539555d68433f17c556e2bee9f0911de7b
+    - 0xaead338685ebfa6425c67e879da687f86e51c56ee6e7f51e9f21fe026a9ff9e1
     abi_file_path: abis/lendvault-abi.json
     handler: src/EventHandlers.ts
     events:

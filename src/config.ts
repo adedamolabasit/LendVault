@@ -4,7 +4,7 @@ export const Config = {
   network_endpoint: "https://testnet.fuel.network",
   chain_id: 0,
   contract_id:
-    "0xb0cbfd0b047f11dadee3a830c2f5978b4a128242bd7f3f266214dbe99de147ca",
+    "0xaead338685ebfa6425c67e879da687f86e51c56ee6e7f51e9f21fe026a9ff9e1",
   lvtIcon:  "https://svgshare.com/i/1ATx.svg"
 };
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { InputBox } from "../../components/InputBox";
 import { useWalletContext } from "../../providers/fuel.provider";
-import { useBorrowAndMint } from "../../hooks/useVaultMutate";
+import { useBorrowAndMint , } from "../../hooks/useVaultMutate";
 import { BorrowAssetsParams } from "../../types";
 import { useVaultQuery } from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
@@ -13,11 +13,11 @@ import { LVT_PRICE_IN_DOLLARS } from "../../config";
 export const Borrow = () => {
   const { account } = useAccount();
   const {
-    borrowAmount,
+    amount,
     instance,
     addressInput,
     ethPrice,
-    setBorrowAmount,
+    setAmount,
     setActiveButton,
   } = useWalletContext();
   const borrowAndMintMutation = useBorrowAndMint();
@@ -27,10 +27,11 @@ export const Borrow = () => {
   const [ethInToken, setEthInToken] = useState<number>(0.0);
   const [ethInUSD, setEthInUSD] = useState<number>(0.0);
   const [assetAtLq, setAssetAtLq] = useState<number>(0.0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { data: ownerVault } = query.fetchSingleVault(account || "");
 
-  const priceInLVT = borrowAmount! * LVT_PRICE_IN_DOLLARS;
+  const priceInLVT = amount! * LVT_PRICE_IN_DOLLARS;
 
   const handleDepositAndMint = useCallback(
     (params: BorrowAssetsParams) => {
@@ -39,6 +40,7 @@ export const Borrow = () => {
           toast.success("Deposit and mint were successful!");
           setCanProceed(false);
           setActiveButton("vault");
+          setIsLoading(false)
         },
         onError: (error: any) => {
           const errorMessage = error?.message || "";
@@ -58,6 +60,7 @@ export const Borrow = () => {
           } else {
             toast.error(`An unexpected error occurred: ${errorMessage}`);
           }
+          setIsLoading(false)
         },
       });
     },
@@ -76,6 +79,7 @@ export const Borrow = () => {
     };
 
     handleDepositAndMint(depositParams);
+    setIsLoading(true)
   };
 
   const next30Days = moment()
@@ -83,10 +87,10 @@ export const Borrow = () => {
     .format("dddd, MMMM DD, YYYY HH:mm");
 
   useEffect(() => {
-    if (borrowAmount && ethPrice) {
+    if (amount && ethPrice) {
       const ethQty = 1 / ethPrice;
-      const ethToLock = borrowAmount * ethQty * 2;
-      const ethToLockInUSD = borrowAmount * ethQty * 2 * ethPrice;
+      const ethToLock = amount * ethQty * 2;
+      const ethToLockInUSD = amount * ethQty * 2 * ethPrice;
       const assetAtLqPrice = ethToLockInUSD * 0.75;
       setEthInToken(ethToLock);
       setEthInUSD(ethToLockInUSD);
@@ -94,9 +98,9 @@ export const Borrow = () => {
     } else {
       setEthInToken(0);
       setEthInUSD(0);
-      setBorrowAmount(0);
+      setAmount(0);
     }
-  }, [borrowAmount, ethPrice, ethInToken, assetAtLq]);
+  }, [amount, ethPrice, ethInToken, assetAtLq]);
 
   return (
     <div className="h-5/6 w-full">
@@ -140,7 +144,7 @@ export const Borrow = () => {
                   </div>
                   <div className="scale-150">≍</div>
                   <div className="text-indigo-600">
-                    ${borrowAmount?.toFixed(2) || 1}
+                    ${amount?.toFixed(2) || 1}
                   </div>
                 </div>
               </dd>
@@ -171,12 +175,12 @@ export const Borrow = () => {
         <div className="flex justify-center">
           <button
             className={`${
-              !borrowAmount
+              !amount
                 ? "bg-cyan-700 opacity-60 cursor-not-allowed"
                 : "bg-cyan-800 cursor-pointer"
             } w-full bg-cyan-800 text-white`}
             onClick={() => setCanProceed(true)}
-            disabled={!borrowAmount}
+            disabled={!amount}
           >
             Proceed To Borrow
           </button>
@@ -186,11 +190,13 @@ export const Borrow = () => {
         canProceed={canProceed}
         setCanProceed={setCanProceed}
         handleSubmit={handleSubmit}
-        loadAmount={borrowAmount as number}
+        loadAmount={amount as number}
         collateralAmount={ethInUSD}
         assetAtLq={assetAtLq}
         interest="3%"
         maturityDate={next30Days}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
       />
     </div>
   );

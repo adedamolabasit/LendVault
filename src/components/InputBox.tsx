@@ -4,8 +4,7 @@ import { useWalletContext } from "../providers/fuel.provider";
 
 export const InputBox = () => {
   const [currency, setCurrency] = useState("USD");
-  const [amount, setAmount] = useState<number>();
-  const { setBorrowAmount, borrowAmount } = useWalletContext();
+  const {  amount, setAmount } = useWalletContext();
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrency(e.target.value);
@@ -15,7 +14,7 @@ export const InputBox = () => {
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
     setAmount(value);
-    setBorrowAmount(value);
+    setAmount(value);
   };
 
   return (
@@ -30,9 +29,8 @@ export const InputBox = () => {
           id="price"
           name="price"
           type="number"
-          placeholder={`${borrowAmount}`}
+          placeholder={`${amount}`}
           min=""
-          value={amount}
           onChange={handleAmountChange}
           className="block w-full h-14 rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 sm:text-sm sm:leading-6"
         />

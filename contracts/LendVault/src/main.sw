@@ -42,6 +42,12 @@ abi LendVault {
 
     #[storage(read)]
     fn get_total_debts() -> u64;
+
+    #[storage(read)]
+    fn get_total_shareholders() -> u64;
+
+    #[storage(read)]
+    fn get_total_borrowers() -> u64;
 }
 
 pub struct VaultInfo {
@@ -102,6 +108,10 @@ storage {
 
     pool_interest: u64 = 0,
 
+    total_borrowers: u64 = 0,
+
+    tototal_shares_holder: u64 = 0,
+
     vault_info: StorageMap<AssetId, VaultInfo> = StorageMap {},
 
     total_supply: StorageMap<AssetId, u64> = StorageMap {},
@@ -150,6 +160,8 @@ impl LendVault for Contract {
 
         storage.total_debts.write(storage.total_debts.read() + amount_to_mint);
 
+        storage.total_borrowers.write(storage.total_borrowers.read() + 1);
+
         mint_to(Identity::Address(recipient), DEFAULT_SUB_ID, amount_to_mint);
 
         let borrow_log = BorrowLog {
@@ -189,6 +201,8 @@ impl LendVault for Contract {
         storage.pool_interest.write(storage.pool_interest.read() + interest);
 
         storage.collateral_balance.write(storage.collateral_balance.read() - borrower_info.collateral_amount);
+
+        storage.total_borrowers.write(storage.total_borrowers.read() - 1);
 
         let amount_to_transfer = borrower_info.collateral_amount - interest;
 
@@ -265,6 +279,16 @@ impl LendVault for Contract {
         storage.total_debts.read()
     }
 
+     #[storage(read)]
+    fn get_total_shareholders() -> u64 {
+        storage.tototal_shares_holder.read()
+    }
+
+    #[storage(read)]
+    fn get_total_borrowers() -> u64 {
+        storage.total_borrowers.read()
+    }
+
 }
 
 
@@ -275,7 +299,7 @@ impl SRC6 for Contract {
         let asset_amount = msg_amount();
         let underlying_asset = msg_asset_id();
 
-        require(underlying_asset == AssetId::base(), "INVALID_ASSET_ID");
+        require(underlying_asset == AssetId::default(), "INVALID_ASSET_ID");
         let (shares, share_asset, share_asset_vault_sub_id) = preview_deposit(underlying_asset, vault_sub_id, asset_amount);
         require(asset_amount != 0, "ZERO_ASSETS");
 
@@ -293,6 +317,8 @@ impl SRC6 for Contract {
         storage.vault_info.insert(share_asset, vault_info);
 
         storage.total_assets.write(storage.total_assets.read() + asset_amount);
+
+        storage.tototal_shares_holder.write(storage.tototal_shares_holder.read() + 1);
 
         log(Deposit {
             caller: msg_sender().unwrap(),
@@ -322,8 +348,12 @@ impl SRC6 for Contract {
         let assets = preview_withdraw(share_asset_id, shares);
 
         let mut vault_info = storage.vault_info.get(share_asset_id).read();
+
         vault_info.managed_assets = vault_info.managed_assets - shares;
+
         storage.vault_info.insert(share_asset_id, vault_info);
+
+         storage.tototal_shares_holder.write(storage.tototal_shares_holder.read() - 1);
 
         _burn(share_asset_id, share_asset_vault_sub_id, shares);
 

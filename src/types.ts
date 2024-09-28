@@ -1,11 +1,18 @@
 import { LendVault } from "./swayContractFile";
 
 
+export interface BorrowAndMintParams {
+    identityInput: any;
+    instance: LendVault | undefined;
+    vaultSubID: string;
+    depositAmount: number;
+  }
+
 export interface DepositAndMintParams {
     identityInput: any;
     instance: LendVault | undefined;
     vaultSubID: string;
-    borrowAmount: number;
+    depositAmount: number;
   }
   
 
@@ -61,13 +68,26 @@ export interface RepayAndBurnParams {
     collateralAmount: number;
     interest: string;
     maturityDate: any;
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   };
 
   export type EarnModalType = {
     canProceed: boolean;
     setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
     handleSubmit: () => void;
-    depositAmount: number;
-    sharesAmount: number;
+    loanAmount: string,
+    collateral: string,
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  };
+
+  export type SaftetyPoolModalType = {
+    canProceed: boolean;
+    setCanProceed: React.Dispatch<React.SetStateAction<boolean>>;
+    handleSubmit: () => void;
+    amountToDeposit: number
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
   };
   

@@ -1,26 +1,21 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { LendVault } from "../swayContractFile";
 
 interface WalletContextType {
-  activeButton: string
-  setActiveButton: React.Dispatch<React.SetStateAction<string>>
+  activeButton: string;
+  setActiveButton: React.Dispatch<React.SetStateAction<string>>;
   instance: LendVault | undefined;
   setInstance: React.Dispatch<React.SetStateAction<LendVault | undefined>>;
   setIdentityInput: React.Dispatch<any>;
   setAddressInput: React.Dispatch<any>;
   addressInput: any;
   identityInput: any;
-  setBorrowAmount: React.Dispatch<React.SetStateAction<number>>
-  borrowAmount: number | undefined;
-  setLoanInfo: React.Dispatch<any>
+  setAmount: React.Dispatch<React.SetStateAction<number>>;
+  amount: number | undefined;
+  setLoanInfo: React.Dispatch<any>;
   loanInfo: any;
-  setEthPrice: React.Dispatch<React.SetStateAction<number | null>>
-  ethPrice: number | null
+  setEthPrice: React.Dispatch<React.SetStateAction<number | null>>;
+  ethPrice: number | null;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -34,7 +29,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
   const [instance, setInstance] = useState<LendVault>();
   const [identityInput, setIdentityInput] = useState<any>();
   const [addressInput, setAddressInput] = useState<any>();
-  const [borrowAmount, setBorrowAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(0);
   const [loanInfo, setLoanInfo] = useState<any>();
   const [ethPrice, setEthPrice] = useState<number | null>(null);
 
@@ -47,14 +42,14 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
         setAddressInput,
         identityInput,
         addressInput,
-        borrowAmount,
-        setBorrowAmount,
+        amount,
+        setAmount,
         setLoanInfo,
         loanInfo,
         ethPrice,
         setEthPrice,
         setActiveButton,
-        activeButton
+        activeButton,
       }}
     >
       {children}

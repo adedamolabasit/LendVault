@@ -1,6 +1,6 @@
 import { bn, FuelError, sha256, createAssetId } from "fuels";
 import {
-  DepositAndMintParams,
+  BorrowAndMintParams,
   RepayAndBurnParams,
   ManagedAssetsParams,
   BorrowAssetsParams,
@@ -9,22 +9,21 @@ import {
 } from "../types";
 import { Config, LVT_SUB_ID } from "../config";
 
-export const depositAndMint = async ({
+export const depositToSafteyPool = async ({
   identityInput,
   instance,
-  vaultSubID,
-  borrowAmount,
-}: DepositAndMintParams): Promise<any> => {
-  const amount = bn.parseUnits(borrowAmount.toString());
+  depositAmount,
+}: BorrowAndMintParams): Promise<any> => {
+  console.log(depositAmount,"ywy")
 
   if (instance) {
     try {
-      const baseAssetId = instance.provider.getBaseAssetId();
+      const tokenId = createAssetId(Config.contract_id, LVT_SUB_ID);
 
       const tx = instance.functions
-        .deposit(identityInput, vaultSubID)
+        .deposit(identityInput, LVT_SUB_ID)
         .callParams({
-          forward: [amount, baseAssetId],
+          forward: [depositAmount, tokenId.bits],
         });
 
       const cost = await tx.getTransactionCost();

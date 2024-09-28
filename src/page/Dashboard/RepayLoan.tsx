@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { RepayLoanParams } from "../../types";
 import { useRepayLoan } from "../../hooks/useVaultMutate";
 import { useWalletContext } from "../../providers/fuel.provider";
 import { toast } from "react-toastify";
+import { EarnModal } from "../../components/EarnModal";
+import { LVT_PRICE_IN_DOLLARS } from "../../config";
 
 export const RepayLoan = () => {
   const returnAndBurnMutation = useRepayLoan();
   const { instance, addressInput, loanInfo, ethPrice, setActiveButton } =
     useWalletContext();
 
+  const [canProceed, setCanProceed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const handleSubmit = () => {
+    setIsLoading(true)
     if (instance) {
       const repayParams: RepayLoanParams = {
         addressInput,
@@ -20,6 +27,7 @@ export const RepayLoan = () => {
         onSuccess: () => {
           toast.success("Repayment successful!");
           setActiveButton("vault");
+          setIsLoading(false)
         },
         onError: (error) => {
           const errorMessage = error?.message || "";
@@ -33,13 +41,20 @@ export const RepayLoan = () => {
           } else {
             toast.error(`An unexpected error occurred: ${errorMessage}`);
           }
+          setIsLoading(false)
         },
       });
     } else {
       console.error("Invalid amount or instance");
     }
   };
-  const TOKEN_PRICE_IN_DOLLAR = 5;
+
+  const collateral =
+    ethPrice === null
+      ? "Loading..."
+      : `$${((loanInfo?.collateralAmount / 1e9) * ethPrice).toFixed(2)}`;
+
+
   if (loanInfo.has_loan) {
     return (
       <div className="h-5/6 w-full">
@@ -70,7 +85,7 @@ export const RepayLoan = () => {
               <div className="flex items-center justify-between py-4">
                 <dt className="text-gray-600">Amount to returb</dt>
                 <dd className="font-medium text-gray-900">
-                  ${(loanInfo?.tokenAmount / TOKEN_PRICE_IN_DOLLAR).toFixed(2)}
+                  ${(loanInfo?.tokenAmount / LVT_PRICE_IN_DOLLARS).toFixed(2)}
                 </dd>
               </div>
               <div className="flex items-center justify-between pt-4">
@@ -83,12 +98,21 @@ export const RepayLoan = () => {
           <div className="flex justify-center">
             <button
               className="bg-cyan-800 text-white cursor-pointer w-full"
-              onClick={handleSubmit}
+              onClick={() => setCanProceed(true)}
             >
-              Proceed To Borrow
+              Return Loan
             </button>
           </div>
         </div>
+        <EarnModal
+          canProceed={canProceed}
+          setCanProceed={setCanProceed}
+          handleSubmit={handleSubmit}
+          loanAmount={loanInfo?.tokenAmount}
+          collateral={collateral}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+        />
       </div>
     );
   }

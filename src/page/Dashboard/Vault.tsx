@@ -1,17 +1,20 @@
 import { useEffect } from "react";
 import { ChartBarSquareIcon } from "@heroicons/react/24/outline";
 import { DashWrapper } from "../Layout/DashWrapper";
-import { useVaultQuery } from "../../hooks/useVaultQuery";
+import {
+  useVaultQuery,
+  useFetchEthereumPrice,
+} from "../../hooks/useVaultQuery";
 import { useAccount } from "@fuels/react";
 import { truncateAddress } from "../../utils/TruncateWalletAddress";
 import { LVTIcon } from "../../assets/Dashboard/LVTIcon";
 import { EthereumIcon } from "../../assets/Dashboard/EthereumIcon";
 import { VaultLoader } from "../../components/VaultLoader";
-import { useFetchEthereumPrice } from "../../hooks/useVaultQuery";
 import { useWalletContext } from "../../providers/fuel.provider";
 import { getLoanInfo } from "../../api/query";
 import moment from "moment";
 import { bn } from "fuels";
+import { LoanBoard } from "../../components/LoanBoard";
 
 interface Stat {
   name: string;
@@ -21,15 +24,8 @@ interface Stat {
 
 interface ActivityItem {
   user: {
-    name: string;
-    imageUrl: string;
+    address: string;
   };
-  commit: string;
-  branch: string;
-  status: "Completed" | "Error";
-  duration: string;
-  date: string;
-  dateTime: string;
 }
 
 export default function Vault() {
@@ -44,7 +40,9 @@ export default function Vault() {
   } = useWalletContext();
   const query = new useVaultQuery();
 
-  const { isLoading: vaultLoading } = query.fetchSingleBorrower(account || "");
+  const { isLoading: vaultLoading, refetch } = query.fetchSingleBorrower(
+    account || ""
+  );
 
   const {
     data: ethPriceRaw,
@@ -103,25 +101,17 @@ export default function Vault() {
   const activityItems: ActivityItem[] = [
     {
       user: {
-        name: `${
+        address: `${
           account ? truncateAddress(account! as string) : "Not Connected"
         }`,
-        imageUrl:
-          "https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
       },
-      commit: "",
-      branch: "main",
-      status: "Completed",
-      duration: "25s",
-      date: "45 minutes ago",
-      dateTime: "2023-01-23T11:00",
     },
   ];
 
   const stats: Stat[] = [
     {
       name: "Token Borrowed",
-      value: `${loanInfo?.tokenAmount} LVT`,
+      value: `${loanInfo?.tokenAmount || "0"} LVT`,
       icon: <LVTIcon className="w-8 h-8" />,
     },
     {
@@ -129,7 +119,11 @@ export default function Vault() {
       value:
         !ethPrice || loanInfo === null
           ? "Loading..."
-          : `$${((loanInfo?.collateralAmount / 1e9) * ethPrice!).toFixed(2)}`,
+          : `$${
+              (
+                (loanInfo?.collateralAmount / 1e9 || 0) * ethPrice! || 0
+              ).toFixed(2) || "0.00"
+            }`,
       icon: <EthereumIcon className="w-8 h-8" />,
     },
     {
@@ -142,91 +136,71 @@ export default function Vault() {
       value:
         loanInfo === null
           ? "Loading..."
-          : `$${bn(loanInfo?.assetPriceAtLq)}` || "0.00",
+          : `$${bn(loanInfo?.assetPriceAtLq)}` || "N/A",
     },
   ];
-  const inputDateString = "53117507301614";
-  if (inputDateString.length === 14) {
-    const parsedDate = moment(inputDateString, "YYYYMMDDHHmmss");
-    if (parsedDate.isValid()) {
-      console.log(
-        "Readable Date:",
-        parsedDate.format("MMMM Do YYYY, h:mm:ss a")
-      );
-    } else {
-      console.log("Invalid date from input format");
-    }
-  } else {
-    console.log("Input date string must be 14 characters long");
-  }
 
-  const parsedDate = moment(loanInfo?.duration, "YYYYMMDDHHmmss");
-  const readableDate = parsedDate.format("MMMM Do YYYY, h:mm:ss a");
-
-  if (accountLoading || vaultLoading || gettingPrice) {
-    return (
-      <DashWrapper>
-        <VaultLoader />
-      </DashWrapper>
-    );
-  }
-
-  if (!account || !instance) {
-    return (
-      <DashWrapper>
-        <div>No account connected.</div>
-      </DashWrapper>
-    );
-  }
+  const parsedDate = loanInfo?.duration
+    ? moment(loanInfo?.duration, "YYYYMMDDHHmmss")
+    : null;
+  const readableDate = parsedDate
+    ? parsedDate.format("MMMM Do YYYY, h:mm:ss a")
+    : "N/A";
 
   return (
     <DashWrapper>
-      <div className="mb-12">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">
-            Account
-          </h3>
-        </div>
-        <ul role="list" className="mt-4 space-y-4">
-          {activityItems.map((activity) => (
-            <li
-              key={activity.dateTime}
-              className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10"
-            >
-              <div className="flex flex-col">
-                <p className="text-sm font-semibold leading-6 text-gray-900">
-                  <span>{activity.user.name}</span>{" "}
-                  <span>{activity.commit}</span>
-                </p>
-                <p className="text-sm text-gray-500">{readableDate}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
       <div>
-        <div className="text-sm font-semibold leading-6 text-gray-900">
-          Vault
-        </div>
-        <dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-          {stats.map((stat) => (
-            <div
-              key={stat.name}
-              className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
-                {stat.icon}
-              </div>
-              <div className="flex flex-col gap-x-2">
-                <div className="text-sm font-semibold leading-6 text-gray-900">
-                  {stat.name}
-                </div>
-                <div className="text-sm text-gray-500">{stat.value}</div>
-              </div>
-            </div>
-          ))}
-        </dl>
+        <LoanBoard />
       </div>
+
+      {accountLoading || vaultLoading || gettingPrice ? (
+        <DashWrapper>
+          <VaultLoader />
+        </DashWrapper>
+      ) : (
+        <div>
+          <div className="mb-12 mt-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold leading-6 text-gray-900">
+                Account
+              </h3>
+            </div>
+            <ul role="list" className="mt-4 space-y-4">
+              {activityItems.map((activity) => (
+                <li className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10">
+                  <div className="flex flex-col">
+                    <p className="text-sm font-semibold leading-6 text-gray-900">
+                      <span>{activity.user.address}</span>{" "}
+                    </p>
+                    <p className="text-sm text-gray-500">{readableDate}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="text-sm font-semibold leading-6 text-gray-900">
+            Your Vault
+          </div>
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+            {stats.map((stat) => (
+              <div
+                key={stat.name}
+                className="relative flex gap-x-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm ring-1 ring-gray-900/10"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-500/10 text-gray-600">
+                  {stat.icon}
+                </div>
+                <div className="flex flex-col gap-x-2">
+                  <div className="text-sm font-semibold leading-6 text-gray-900">
+                    {stat.name}
+                  </div>
+                  <div className="text-sm text-gray-500">{stat.value}</div>
+                </div>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
     </DashWrapper>
   );
 }

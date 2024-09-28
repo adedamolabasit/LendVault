@@ -8,15 +8,20 @@ import {
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { EarnModalType } from "../types";
 
-
-
 export const EarnModal: FC<EarnModalType> = ({
   canProceed,
   setCanProceed,
   handleSubmit,
-  depositAmount,
-  sharesAmount,
+  loanAmount,
+  collateral,
+  isLoading,
+  setIsLoading,
 }) => {
+  const cancelTransaction = () => {
+    setCanProceed(false);
+    setIsLoading(false);
+  };
+
   return (
     <Dialog
       open={canProceed}
@@ -52,17 +57,17 @@ export const EarnModal: FC<EarnModalType> = ({
                   <div className="rounded-lg bg-gray-50 px-4 py-6">
                     <dl className="divide-y divide-gray-200 text-sm">
                       <div className="flex items-center justify-between pb-4">
-                        <dt className="text-gray-600">Loan Amount</dt>
+                        <dt className="text-gray-600">Loan Amount to Pay</dt>
                         <dd className="font-medium text-gray-900">
-                          {depositAmount}
+                          {loanAmount} LVT
                         </dd>
                       </div>
                       <div className="flex items-center justify-between py-4">
                         <dt className="text-gray-600">
-                          Assets to Deposit (Ether)
+                          Collateral to withdraw (Ether)
                         </dt>
                         <dd className="font-bold text-bg-cyan-800">
-                          {sharesAmount}
+                          {collateral}
                         </dd>
                       </div>
                     </dl>
@@ -73,7 +78,7 @@ export const EarnModal: FC<EarnModalType> = ({
             <div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
               <button
                 type="button"
-                onClick={() => setCanProceed(false)}
+                onClick={cancelTransaction }
                 className="flex w-full justify-center rounded-md bg-white text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 border border-cyan-700"
               >
                 Cancel
@@ -81,9 +86,9 @@ export const EarnModal: FC<EarnModalType> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="flex w-full justify-center items-center rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700"
+                className={`${isLoading && "cursor-not-allowed opacity-60"}flex w-full justify-center items-center rounded-md bg-cyan-800 text-sm font-semibold text-white shadow-sm hover:bg-cyan-700`}
               >
-                Borrow
+                {isLoading ? "Returning Loan..." : "Return"}
               </button>
             </div>
           </DialogPanel>
