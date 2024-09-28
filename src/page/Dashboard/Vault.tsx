@@ -40,7 +40,7 @@ export default function Vault() {
   } = useWalletContext();
   const query = new useVaultQuery();
 
-  const { isLoading: vaultLoading, refetch } = query.fetchSingleBorrower(
+  const { isLoading: vaultLoading } = query.fetchSingleBorrower(
     account || ""
   );
 

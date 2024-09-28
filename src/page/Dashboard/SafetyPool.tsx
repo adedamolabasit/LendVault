@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { InputBox } from "../../components/InputBox";
-import { useWalletContext } from "../../providers/fuel.provider";
-import { LoanCalculator } from "../../utils/LoanCalculator";
+import { useWalletContext } from "../../providers/fuel.provider"
 import { useDepositToPool } from "../../hooks/useVaultMutate";
 import { BorrowAndMintParams } from "../../types";
 import { Fuel, Asset } from "fuels";
@@ -35,23 +34,6 @@ export const SafetyPool = () => {
 
   const { data: ownerVault } = query.fetchSingleVault(account || "");
   const contractId = Config.contract_id;
-  const date = new Date();
-
-  const loanAmount = amount as number;
-  const liquidationThreshold = 150;
-  const loanStartDate = new Date();
-  const loanDurationDays = 90;
-  const interestRate = 5;
-  const borrowingLimit = 75;
-
-  const calculator = new LoanCalculator(
-    interestRate,
-    loanAmount,
-    liquidationThreshold,
-    loanStartDate,
-    loanDurationDays,
-    borrowingLimit
-  );
 
   const handleDepositAndMint = useCallback(
     (params: BorrowAndMintParams) => {
