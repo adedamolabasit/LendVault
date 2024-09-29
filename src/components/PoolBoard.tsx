@@ -88,7 +88,7 @@ export const PoolBoard = () => {
                 {item.name}
               </div>
             </dt>
-            <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900 text-center">
+            <dd className="mt-1 text-lg font-semibold tracking-tight text-gray-900 text-center">
               {totalSharesHolder || poolInterest || saftyPoolBalance ? (
                 item.stat
               ) : (
